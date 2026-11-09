@@ -73,3 +73,4 @@
 | `/administradores/{uid}` | `nombres`, `apellidos`, `correo`, `celular`, `documento`, `usuario`, `fotoPerfil`, `fecha_creacion` | String, Timestamp |
 | `/administradores/{uid}/clientes/{cliId}` | `nombre`, `celular`, `documento`, `ubicacion`, `modalidad`, `monto`, `cuota`, `cuotasPagadas`, `cuotasTotales`, `capitalPendiente`, `interesPendiente`, `totalPendiente`, `fechaInicio`, `tipoRegistro` | String (montos), Number (cuotas), Timestamp (fechas) |
 | `/.../clientes/{cliId}/historial_pagos/{pagoId}` | `monto`, `tipo`, `numeroCuota`, `fechaPago` | String (monto), Number/String (cuota), Timestamp |
+
