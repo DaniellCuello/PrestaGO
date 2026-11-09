@@ -1,18 +1,123 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { useColorScheme } from 'react-native';
+import React, { useEffect } from 'react';
+import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
+import { Stack, useRouter, useSegments } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
+import { ShieldCheck } from 'lucide-react-native';
+import { PrestagoProvider, usePrestago } from '@/context/PrestagoContext';
+import { BrandColors, Colors } from '@/constants/theme';
 
-import { AnimatedSplashOverlay } from '@/components/animated-icon';
-import AppTabs from '@/components/app-tabs';
+function AuthGuardLoader({ isDarkMode }: { isDarkMode: boolean }) {
+  const theme = isDarkMode ? Colors.dark : Colors.light;
 
-SplashScreen.preventAutoHideAsync();
-
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <AnimatedSplashOverlay />
-      <AppTabs />
-    </ThemeProvider>
+    <View style={[styles.splashContainer, { backgroundColor: theme.background }]}>
+      <LinearGradient
+        colors={BrandColors.gradientPrimary}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.logoBadge}
+      >
+        <ShieldCheck size={40} color="#FFFFFF" />
+      </LinearGradient>
+      <Text style={[styles.appName, { color: theme.text }]}>
+        Presta<Text style={{ color: BrandColors.primary }}>Go</Text>
+      </Text>
+      <Text style={[styles.appSubtitle, { color: theme.textSecondary }]}>
+        Control financiero seguro
+      </Text>
+      <ActivityIndicator
+        size="large"
+        color={BrandColors.primary}
+        style={{ marginTop: 24 }}
+      />
+    </View>
   );
 }
+
+function RootNavigator() {
+  const { isDarkMode, isAuthenticated, isAuthLoading } = usePrestago();
+  const segments = useSegments();
+  const router = useRouter();
+
+  // Protección de rutas: redirigir a login si no está autenticado
+  useEffect(() => {
+    if (isAuthLoading) return;
+
+    const inAuthGroup = (segments as string[])[0] === '(auth)';
+
+    if (!isAuthenticated && !inAuthGroup) {
+      router.replace('/(auth)/login' as any);
+    } else if (isAuthenticated && inAuthGroup) {
+      router.replace('/(tabs)' as any);
+    }
+  }, [isAuthenticated, isAuthLoading, segments]);
+
+  if (isAuthLoading) {
+    return (
+      <>
+        <StatusBar style={isDarkMode ? 'light' : 'dark'} />
+        <AuthGuardLoader isDarkMode={isDarkMode} />
+      </>
+    );
+  }
+
+  return (
+    <>
+      <StatusBar style={isDarkMode ? 'light' : 'dark'} />
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="new-client"
+          options={{
+            presentation: 'modal',
+            headerShown: false,
+          }}
+        />
+      </Stack>
+    </>
+  );
+}
+
+export default function RootLayout() {
+  return (
+    <SafeAreaProvider>
+      <PrestagoProvider>
+        <RootNavigator />
+      </PrestagoProvider>
+    </SafeAreaProvider>
+  );
+}
+
+const styles = StyleSheet.create({
+  splashContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 24,
+  },
+  logoBadge: {
+    width: 80,
+    height: 80,
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+    shadowColor: BrandColors.primary,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.35,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  appName: {
+    fontSize: 34,
+    fontWeight: '800',
+    letterSpacing: -0.5,
+  },
+  appSubtitle: {
+    fontSize: 14,
+    marginTop: 6,
+  },
+});

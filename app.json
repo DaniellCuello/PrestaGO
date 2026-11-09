@@ -2,7 +2,7 @@
   "expo": {
     "name": "PrestaGo",
     "slug": "PrestaGo",
-    "version": "1.0.0",
+    "version": "1.1.1",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "prestago",
@@ -20,7 +20,7 @@
       "predictiveBackGestureEnabled": false
     },
     "web": {
-      "output": "static",
+      "output": "single",
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
@@ -28,9 +28,28 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#208AEF",
+          "backgroundColor": "#1AA965",
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 76
+        }
+      ],
+      [
+        "expo-contacts",
+        {
+          "contactsPermission": "PrestaGo necesita acceso a tus contactos para importar el número de WhatsApp y nombre de tus clientes."
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "PrestaGo necesita acceso a tu ubicación GPS para registrar la dirección exacta de cobro del cliente en el mapa."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "PrestaGo necesita acceso a tu galería para seleccionar tu foto de perfil de administrador.",
+          "cameraPermission": "PrestaGo necesita acceso a tu cámara para capturar tu foto de perfil de administrador."
         }
       ]
     ],
