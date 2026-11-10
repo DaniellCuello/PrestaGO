@@ -9,6 +9,8 @@ import {
   TextInput,
   Platform,
   Alert,
+  KeyboardAvoidingView,
+  Keyboard,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -99,8 +101,16 @@ const AdminModalEditContent: React.FC<AdminModalEditContentProps> = ({
   };
 
   return (
-    <View style={styles.overlay}>
-      <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      style={styles.overlay}>
+      <Pressable
+        style={StyleSheet.absoluteFill}
+        onPress={() => {
+          Keyboard.dismiss();
+          onClose();
+        }}
+      />
       <View
         style={[
           styles.sheetContainer,
@@ -135,6 +145,8 @@ const AdminModalEditContent: React.FC<AdminModalEditContentProps> = ({
 
         <ScrollView
           showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          automaticallyAdjustKeyboardInsets={true}
           contentContainerStyle={styles.scrollContent}>
           {/* Nombres */}
           <View style={styles.fieldGroup}>
@@ -300,7 +312,7 @@ const AdminModalEditContent: React.FC<AdminModalEditContentProps> = ({
           <View style={{ height: 20 }} />
         </ScrollView>
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -332,10 +344,11 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: BorderRadius['2xl'],
     borderTopRightRadius: BorderRadius['2xl'],
     borderWidth: 1,
-    maxHeight: '90%',
+    maxHeight: '88%',
     maxWidth: 680,
     width: '100%',
     alignSelf: 'center',
+    flexShrink: 1,
   },
   sheetHeader: {
     paddingHorizontal: 20,

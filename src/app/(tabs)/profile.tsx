@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -12,6 +12,7 @@ import {
   Linking,
   ActivityIndicator,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
@@ -19,9 +20,6 @@ import {
   Shield,
   Phone,
   CreditCard,
-  Moon,
-  Sun,
-  CheckCircle2,
   Camera,
   Image as ImageIcon,
   Trash2,
@@ -29,6 +27,10 @@ import {
   Edit3,
   Mail,
   LogOut,
+  Bell,
+  FileText,
+  ShieldCheck,
+  ChevronRight,
 } from 'lucide-react-native';
 import { usePrestago } from '@/context/PrestagoContext';
 import { BrandColors, Colors, BorderRadius, Shadows, MaxContentWidth } from '@/constants/theme';
@@ -38,8 +40,6 @@ import { AdminModalEdit } from '@/components/AdminModalEdit';
 export default function ProfileScreen() {
   const {
     admin,
-    clientes,
-    historialPagos,
     isDarkMode,
     toggleTheme,
     metricas,
@@ -52,6 +52,32 @@ export default function ProfileScreen() {
   const [photoModalVisible, setPhotoModalVisible] = useState(false);
   const [editAdminModalVisible, setEditAdminModalVisible] = useState(false);
   const [loadingPhoto, setLoadingPhoto] = useState(false);
+  const [notificacionesCobro, setNotificacionesCobro] = useState(true);
+  const [terminosModalVisible, setTerminosModalVisible] = useState(false);
+  const [privacidadModalVisible, setPrivacidadModalVisible] = useState(false);
+
+  useEffect(() => {
+    const cargarPreferenciaNotif = async () => {
+      try {
+        const valor = await AsyncStorage.getItem('@prestago_notificaciones_activas');
+        if (valor !== null) {
+          setNotificacionesCobro(valor === 'true');
+        }
+      } catch (e) {
+        console.warn('Error al cargar preferencia de notificaciones:', e);
+      }
+    };
+    cargarPreferenciaNotif();
+  }, []);
+
+  const handleToggleNotificaciones = async (val: boolean) => {
+    setNotificacionesCobro(val);
+    try {
+      await AsyncStorage.setItem('@prestago_notificaciones_activas', val ? 'true' : 'false');
+    } catch (e) {
+      console.warn('Error al guardar preferencia de notificaciones:', e);
+    }
+  };
 
   // Manejar captura con Cámara (solicitando permisos explícitos)
   const handleTomarFotoCamara = async () => {
@@ -324,29 +350,78 @@ export default function ProfileScreen() {
             },
             Shadows.sm,
           ]}>
+          {/* Ajuste de Notificaciones */}
           <View style={styles.settingsItem}>
             <View style={styles.settingsItemLeft}>
-              {isDarkMode ? (
-                <Moon size={20} color={BrandColors.primary} />
-              ) : (
-                <Sun size={20} color="#F59E0B" />
-              )}
-              <View>
+              <View style={[styles.prefIconBox, { backgroundColor: isDarkMode ? '#13231B' : '#E8F8F0' }]}>
+                <Bell size={18} color={BrandColors.primary} />
+              </View>
+              <View style={{ flex: 1, paddingRight: 8 }}>
                 <Text style={[styles.settingsTitle, { color: theme.text }]}>
-                  Modo Oscuro
+                  Notificaciones de Cobro
                 </Text>
                 <Text style={[styles.settingsSub, { color: theme.textSecondary }]}>
-                  {isDarkMode ? 'Activado (Fondo elegante)' : 'Desactivado (Fondo claro)'}
+                  {notificacionesCobro ? 'Recordatorios automáticos activados' : 'Recordatorios desactivados'}
                 </Text>
               </View>
             </View>
             <Switch
-              value={isDarkMode}
-              onValueChange={toggleTheme}
+              value={notificacionesCobro}
+              onValueChange={handleToggleNotificaciones}
               trackColor={{ false: '#CBD5E1', true: BrandColors.primary }}
               thumbColor="#FFFFFF"
             />
           </View>
+
+          <View style={[styles.settingsDivider, { backgroundColor: theme.border }]} />
+
+          {/* Términos y Condiciones */}
+          <Pressable
+            onPress={() => setTerminosModalVisible(true)}
+            style={({ pressed }) => [
+              styles.settingsItemAction,
+              pressed && { opacity: 0.75 },
+            ]}>
+            <View style={styles.settingsItemLeft}>
+              <View style={[styles.prefIconBox, { backgroundColor: isDarkMode ? '#162238' : '#EFF6FF' }]}>
+                <FileText size={18} color="#3B82F6" />
+              </View>
+              <View style={{ flex: 1, paddingRight: 8 }}>
+                <Text style={[styles.settingsTitle, { color: theme.text }]}>
+                  Términos y Condiciones
+                </Text>
+                <Text style={[styles.settingsSub, { color: theme.textSecondary }]}>
+                  Reglas de microcrédito, tasas y uso legal
+                </Text>
+              </View>
+            </View>
+            <ChevronRight size={18} color={theme.textMuted} />
+          </Pressable>
+
+          <View style={[styles.settingsDivider, { backgroundColor: theme.border }]} />
+
+          {/* Política de Privacidad */}
+          <Pressable
+            onPress={() => setPrivacidadModalVisible(true)}
+            style={({ pressed }) => [
+              styles.settingsItemAction,
+              pressed && { opacity: 0.75 },
+            ]}>
+            <View style={styles.settingsItemLeft}>
+              <View style={[styles.prefIconBox, { backgroundColor: isDarkMode ? '#221938' : '#F5F3FF' }]}>
+                <ShieldCheck size={18} color="#8B5CF6" />
+              </View>
+              <View style={{ flex: 1, paddingRight: 8 }}>
+                <Text style={[styles.settingsTitle, { color: theme.text }]}>
+                  Política de Privacidad
+                </Text>
+                <Text style={[styles.settingsSub, { color: theme.textSecondary }]}>
+                  Protección de datos personales (Habeas Data Ley 1581)
+                </Text>
+              </View>
+            </View>
+            <ChevronRight size={18} color={theme.textMuted} />
+          </Pressable>
         </View>
 
         {/* Botón de Cerrar Sesión */}
@@ -526,6 +601,185 @@ export default function ProfileScreen() {
           }
         }}
       />
+
+      {/* Modal: Términos y Condiciones */}
+      <Modal
+        visible={terminosModalVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setTerminosModalVisible(false)}>
+        <View style={styles.modalOverlay}>
+          <Pressable
+            style={StyleSheet.absoluteFill}
+            onPress={() => setTerminosModalVisible(false)}
+          />
+          <View
+            style={[
+              styles.modalLegalSheet,
+              {
+                backgroundColor: theme.card,
+                borderColor: theme.border,
+              },
+              Shadows.lg,
+            ]}>
+            <View style={styles.modalHeader}>
+              <View style={{ flex: 1, paddingRight: 12 }}>
+                <Text style={[styles.modalTitle, { color: theme.text }]}>
+                  Términos y Condiciones
+                </Text>
+                <Text style={[styles.modalSubtitle, { color: theme.textSecondary }]}>
+                  PrestaGo Mobile App v1.1.1 · Uso Profesional
+                </Text>
+              </View>
+              <Pressable
+                onPress={() => setTerminosModalVisible(false)}
+                style={[
+                  styles.modalCloseBtn,
+                  { backgroundColor: isDarkMode ? '#1E2636' : '#F1F5F9' },
+                ]}>
+                <X size={18} color={theme.text} />
+              </Pressable>
+            </View>
+
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={styles.legalScroll}>
+              <View style={[styles.legalCard, { backgroundColor: isDarkMode ? '#121722' : '#F8FAFC', borderColor: theme.border }]}>
+                <Text style={[styles.legalSectionTitle, { color: BrandColors.primary }]}>
+                  1. Objeto y Alcance de PrestaGo
+                </Text>
+                <Text style={[styles.legalBody, { color: theme.textSecondary }]}>
+                  PrestaGo es un software especializado de asistencia y registro financiero para administradores, prestamistas y gestores de microcrédito. Su finalidad es el control contable de saldos, cálculo automático de amortizaciones de capital e interés y calendarización de cobros.
+                </Text>
+
+                <Text style={[styles.legalSectionTitle, { color: BrandColors.primary, marginTop: 14 }]}>
+                  2. Cumplimiento de Tasas de Usura y Normativa
+                </Text>
+                <Text style={[styles.legalBody, { color: theme.textSecondary }]}>
+                  El administrador se compromete expresamente a fijar tasas de interés conforme a los topes máximos certificados por la Superintendencia Financiera de Colombia. PrestaGo no intermedia fondos ni presta dinero; es una herramienta tecnológica independiente para la gestión del prestamista.
+                </Text>
+
+                <Text style={[styles.legalSectionTitle, { color: BrandColors.primary, marginTop: 14 }]}>
+                  3. Cobro Respetuoso y Ley 2300 de 2023
+                </Text>
+                <Text style={[styles.legalBody, { color: theme.textSecondary }]}>
+                  El envío de mensajes de cobro o recordatorios redactados mediante el Asistente IA (WhatsApp / SMS) debe realizarse dentro de horarios comerciales reglamentarios (Ley &apos;Dejen de Fregar&apos;) y manteniendo un trato ético y respetuoso hacia el deudor.
+                </Text>
+
+                <Text style={[styles.legalSectionTitle, { color: BrandColors.primary, marginTop: 14 }]}>
+                  4. Respaldo y Sincronización en la Nube
+                </Text>
+                <Text style={[styles.legalBody, { color: theme.textSecondary }]}>
+                  Todos los registros de clientes, cuotas y abonos se sincronizan en tiempo real mediante Firebase Cloud Firestore. Cada administrador es responsable de la exactitud de los montos ingresados y de mantener la confidencialidad de sus credenciales maestras.
+                </Text>
+              </View>
+
+              <Pressable
+                onPress={() => setTerminosModalVisible(false)}
+                style={[styles.legalConfirmBtn, Shadows.glowGreen]}>
+                <LinearGradient
+                  colors={[BrandColors.primary, BrandColors.primaryDark]}
+                  style={styles.legalConfirmGradient}>
+                  <Text style={styles.legalConfirmText}>He leído y acepto los términos</Text>
+                </LinearGradient>
+              </Pressable>
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Modal: Política de Privacidad */}
+      <Modal
+        visible={privacidadModalVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setPrivacidadModalVisible(false)}>
+        <View style={styles.modalOverlay}>
+          <Pressable
+            style={StyleSheet.absoluteFill}
+            onPress={() => setPrivacidadModalVisible(false)}
+          />
+          <View
+            style={[
+              styles.modalLegalSheet,
+              {
+                backgroundColor: theme.card,
+                borderColor: theme.border,
+              },
+              Shadows.lg,
+            ]}>
+            <View style={styles.modalHeader}>
+              <View style={{ flex: 1, paddingRight: 12 }}>
+                <Text style={[styles.modalTitle, { color: theme.text }]}>
+                  Política de Privacidad
+                </Text>
+                <Text style={[styles.modalSubtitle, { color: theme.textSecondary }]}>
+                  Habeas Data · Ley 1581 de 2012 (Colombia)
+                </Text>
+              </View>
+              <Pressable
+                onPress={() => setPrivacidadModalVisible(false)}
+                style={[
+                  styles.modalCloseBtn,
+                  { backgroundColor: isDarkMode ? '#1E2636' : '#F1F5F9' },
+                ]}>
+                <X size={18} color={theme.text} />
+              </Pressable>
+            </View>
+
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={styles.legalScroll}>
+              <View style={[styles.legalCard, { backgroundColor: isDarkMode ? '#121722' : '#F8FAFC', borderColor: theme.border }]}>
+                <Text style={[styles.legalSectionTitle, { color: '#8B5CF6' }]}>
+                  1. Responsable del Tratamiento
+                </Text>
+                <Text style={[styles.legalBody, { color: theme.textSecondary }]}>
+                  En concordancia con la Ley 1581 de 2012 y el Decreto 1377 de 2013, los datos ingresados en PrestaGo son administrados por el usuario titular bajo estrictas políticas de confidencialidad y reserva financiera.
+                </Text>
+
+                <Text style={[styles.legalSectionTitle, { color: '#8B5CF6', marginTop: 14 }]}>
+                  2. Datos Personales Recolectados
+                </Text>
+                <Text style={[styles.legalBody, { color: theme.textSecondary }]}>
+                  PrestaGo almacena: (a) Datos del prestamista (nombre, cédula, teléfono, email, negocio); (b) Datos de clientes deudores (nombre completo, número de documento, celular/WhatsApp, ubicación geográfica y registros de amortización).
+                </Text>
+
+                <Text style={[styles.legalSectionTitle, { color: '#8B5CF6', marginTop: 14 }]}>
+                  3. Finalidad del Tratamiento
+                </Text>
+                <Text style={[styles.legalBody, { color: theme.textSecondary }]}>
+                  La información recolectada se utiliza únicamente para el control contable, cálculo de saldos pendientes, envío de recibos digitales y emisión de alertas de vencimiento autorizadas por el deudor. PrestaGo nunca comercializa ni cede bases de datos a terceros.
+                </Text>
+
+                <Text style={[styles.legalSectionTitle, { color: '#8B5CF6', marginTop: 14 }]}>
+                  4. Seguridad y Cifrado en Firestore
+                </Text>
+                <Text style={[styles.legalBody, { color: theme.textSecondary }]}>
+                  Los registros se encuentran blindados mediante reglas de seguridad de Google Cloud Firebase Firestore con autenticación por tokens encriptados. Cada administrador solo puede consultar sus propios documentos.
+                </Text>
+
+                <Text style={[styles.legalSectionTitle, { color: '#8B5CF6', marginTop: 14 }]}>
+                  5. Derechos del Titular (Habeas Data)
+                </Text>
+                <Text style={[styles.legalBody, { color: theme.textSecondary }]}>
+                  Los titulares de los datos tienen derecho a conocer, actualizar, rectificar y solicitar la eliminación de su información en cualquier momento mediante la edición de clientes o contactando al administrador.
+                </Text>
+              </View>
+
+              <Pressable
+                onPress={() => setPrivacidadModalVisible(false)}
+                style={[styles.legalConfirmBtn, Shadows.glowGreen]}>
+                <LinearGradient
+                  colors={['#8B5CF6', '#6D28D9']}
+                  style={styles.legalConfirmGradient}>
+                  <Text style={styles.legalConfirmText}>Entendido y Conforme</Text>
+                </LinearGradient>
+              </Pressable>
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -834,5 +1088,66 @@ const styles = StyleSheet.create({
   optionDesc: {
     fontSize: 11,
     marginTop: 2,
+  },
+  prefIconBox: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  settingsItemAction: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+  },
+  settingsDivider: {
+    height: 1,
+    marginHorizontal: 16,
+  },
+  modalLegalSheet: {
+    borderTopLeftRadius: BorderRadius['2xl'],
+    borderTopRightRadius: BorderRadius['2xl'],
+    borderWidth: 1,
+    padding: 20,
+    maxHeight: '88%',
+    maxWidth: 640,
+    width: '100%',
+    alignSelf: 'center',
+  },
+  legalScroll: {
+    paddingBottom: 24,
+  },
+  legalCard: {
+    borderRadius: BorderRadius.xl,
+    borderWidth: 1,
+    padding: 16,
+    marginBottom: 16,
+  },
+  legalSectionTitle: {
+    fontSize: 14,
+    fontWeight: '800',
+    marginBottom: 4,
+  },
+  legalBody: {
+    fontSize: 12,
+    lineHeight: 18,
+  },
+  legalConfirmBtn: {
+    borderRadius: BorderRadius.xl,
+    overflow: 'hidden',
+    marginTop: 4,
+  },
+  legalConfirmGradient: {
+    paddingVertical: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  legalConfirmText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '800',
   },
 });

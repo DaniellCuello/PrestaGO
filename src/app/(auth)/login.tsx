@@ -9,7 +9,6 @@ import {
   Platform,
   ScrollView,
   ActivityIndicator,
-  Alert,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
@@ -22,7 +21,6 @@ import {
   ArrowRight,
   Sun,
   Moon,
-  Sparkles,
   AlertCircle,
 } from 'lucide-react-native';
 import { usePrestago } from '@/context/PrestagoContext';
@@ -67,10 +65,6 @@ export default function LoginScreen() {
     }
   };
 
-  const handleDemoLogin = () => {
-    setIdentificador('denilsonpc30@gmail.com');
-  };
-
   return (
     <KeyboardAvoidingView
       style={[styles.container, { backgroundColor: theme.background }]}
@@ -79,6 +73,7 @@ export default function LoginScreen() {
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
+        automaticallyAdjustKeyboardInsets={true}
         showsVerticalScrollIndicator={false}
       >
         <View style={[styles.mainWrapper, { maxWidth: MaxContentWidth }]}>
@@ -262,37 +257,6 @@ export default function LoginScreen() {
                   </>
                 )}
               </LinearGradient>
-            </Pressable>
-
-            {/* Separador */}
-            <View style={styles.dividerRow}>
-              <View style={[styles.dividerLine, { backgroundColor: theme.border }]} />
-              <Text style={[styles.dividerText, { color: theme.textMuted }]}>O prueba con</Text>
-              <View style={[styles.dividerLine, { backgroundColor: theme.border }]} />
-            </View>
-
-            {/* Tarjeta de Acceso Rápido Administrador */}
-            <Pressable
-              onPress={handleDemoLogin}
-              disabled={loading}
-              style={({ pressed }) => [
-                styles.demoBtn,
-                {
-                  backgroundColor: isDarkMode ? 'rgba(26, 169, 101, 0.12)' : '#E8F8F0',
-                  borderColor: isDarkMode ? 'rgba(26, 169, 101, 0.3)' : '#A7F3D0',
-                },
-                pressed && { opacity: 0.8 },
-              ]}
-            >
-              <Sparkles size={18} color={BrandColors.primary} />
-              <View style={styles.demoTextCol}>
-                <Text style={[styles.demoTitle, { color: BrandColors.primary }]}>
-                  Cuenta Principal Firebase
-                </Text>
-                <Text style={[styles.demoSub, { color: theme.textSecondary }]}>
-                  Toca aquí para rellenar denilsonpc30@gmail.com
-                </Text>
-              </View>
             </Pressable>
           </View>
 

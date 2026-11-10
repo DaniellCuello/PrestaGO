@@ -261,6 +261,8 @@ export default function NewClientScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView
           showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          automaticallyAdjustKeyboardInsets={true}
           contentContainerStyle={styles.scrollContent}>
         {/* Switch Préstamo Nuevo vs Migrado */}
         {!clienteARenovar && (

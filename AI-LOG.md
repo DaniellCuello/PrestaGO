@@ -64,6 +64,22 @@
   - Retirada la tarjeta de reseteo de datos mock en la pestaña de perfil para proteger la información real de producción.
   - Incremento de versión a **v1.1.1** en `package.json`, `app.json` y `profile.tsx`.
 
+### [Hito 6] — Refinamiento de UI, Ajustes Legales y Prevención de Superposición de Teclado
+- **Pantalla de Login (`login.tsx`):**
+  - Removido el botón / tarjeta de demostración ("Cuenta Principal Firebase") para mantener la interfaz neutral para cualquier administrador que se registre.
+- **Pestaña de Perfil (`profile.tsx`):**
+  - Removido el interruptor duplicado de "Modo Oscuro" en la sección de Preferencias (ya accesible globalmente desde el icono en la barra superior).
+  - Añadido el interruptor de **Notificaciones de Cobro** con persistencia en `AsyncStorage` (`@prestago_notificaciones_activas`) para control de recordatorios de cobro y vencimientos.
+  - Implementado modal interactivo de **Términos y Condiciones** que contempla normativas colombianas de microcrédito, límites de tasa de usura de la SuperFinanciera y cobranza ética (Ley 2300 de 2023 "Dejen de Fregar").
+  - Implementado modal interactivo de **Política de Privacidad y Habeas Data** en estricto cumplimiento con la Ley 1581 de 2012 y el Decreto 1377 de 2013 de Colombia.
+- **Corrección de Teclado en Pantalla e Inputs (`KeyboardAvoidingView`):**
+  - En `AdminModalEdit.tsx`: El sheet modal ahora está contenido dentro de `KeyboardAvoidingView` con ajuste dinámico y `automaticallyAdjustKeyboardInsets={true}`, evitando que el teclado tape los campos de texto y el botón de guardado.
+  - En `ClienteModalEdit.tsx` y `ClienteModalDetail.tsx`: Se implementó la misma arquitectura para edición de clientes y registro de abonos.
+  - En `assistant.tsx` (Asistente IA): La barra de entrada de mensajes y el feed de chat ahora se desplazan y elevan suavemente por encima del teclado mediante `useSafeAreaInsets` (`tabOffset`), con desplazamiento automático al final (`scrollToEnd`) al enfocar el campo de texto.
+- **Verificación:**
+  - `npx tsc --noEmit` completado con 0 errores de tipado.
+  - `npx eslint .` completado con 0 errores de linter.
+
 ---
 
 ## 📐 Resumen del Modelo de Datos Firestore

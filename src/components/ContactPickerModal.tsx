@@ -103,42 +103,27 @@ const ContactPickerContent: React.FC<Omit<ContactPickerModalProps, 'visible'>> =
           return;
         }
 
-        let rawData: any[] = [];
-        if (typeof (Contacts as any).Contact?.getAllDetails === 'function') {
-          try {
-            rawData = await (Contacts as any).Contact.getAllDetails(
-              [Contacts.ContactField.FULL_NAME, Contacts.ContactField.PHONES],
-              { limit: 200 }
-            );
-          } catch {
-            const res = await Contacts.getContactsAsync({
-              fields: [Contacts.Fields.PhoneNumbers, Contacts.Fields.Name],
-              pageSize: 200,
-            });
-            rawData = res.data || [];
-          }
-        } else {
-          const res = await Contacts.getContactsAsync({
-            fields: [Contacts.Fields.PhoneNumbers, Contacts.Fields.Name],
-            pageSize: 200,
-          });
-          rawData = res.data || [];
-        }
+        const res = await Contacts.getContactsAsync({
+          fields: [Contacts.Fields.PhoneNumbers, Contacts.Fields.Name],
+          pageSize: 200,
+        });
+        const rawData = res.data || [];
 
         const mapped: ContactoSeleccionado[] = [];
         for (const item of rawData) {
+          const rawItem = item as any;
           const name =
-            item.fullName ||
-            item.name ||
-            `${item.givenName || ''} ${item.familyName || ''}`.trim();
+            rawItem.name ||
+            rawItem.fullName ||
+            `${rawItem.firstName || rawItem.givenName || ''} ${rawItem.lastName || rawItem.familyName || ''}`.trim();
 
-          const phonesList = item.phones || item.phoneNumbers || [];
+          const phonesList = rawItem.phoneNumbers || rawItem.phones || [];
           if (phonesList.length > 0 && name) {
             const rawNum = phonesList[0].number || '';
             const cleanNum = normalizarCelularColombia(rawNum);
             if (cleanNum) {
               mapped.push({
-                id: item.id || String(Math.random()),
+                id: rawItem.id || String(Math.random()),
                 nombre: name,
                 celular: cleanNum,
               });

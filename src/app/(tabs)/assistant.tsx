@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -10,6 +10,7 @@ import {
   Platform,
   KeyboardAvoidingView,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import {
   Bot,
@@ -27,6 +28,9 @@ import { formatCurrency, formatDate } from '@/utils/finance';
 export default function AssistantScreen() {
   const { clientes, isDarkMode, toggleTheme, metricas } = usePrestago();
   const theme = isDarkMode ? Colors.dark : Colors.light;
+  const insets = useSafeAreaInsets();
+  const tabOffset = Platform.OS === 'ios' ? 56 + Math.max(insets.bottom, 10) : 0;
+  const chatScrollRef = useRef<React.ElementRef<typeof ScrollView>>(null);
 
   const [inputMessage, setInputMessage] = useState('');
   const [selectedClienteId, setSelectedClienteId] = useState<string>(clientes[0]?.id || '');
@@ -152,7 +156,7 @@ export default function AssistantScreen() {
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 88 : 0}>
+        keyboardVerticalOffset={tabOffset}>
         <View
           style={[
             styles.contextBar,
@@ -203,7 +207,11 @@ export default function AssistantScreen() {
 
         {/* Lista de Mensajes del Chat */}
         <ScrollView
+          ref={chatScrollRef}
           showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          automaticallyAdjustKeyboardInsets={true}
+          onContentSizeChange={() => chatScrollRef.current?.scrollToEnd({ animated: true })}
           contentContainerStyle={styles.chatScroll}>
           <View style={styles.responsiveInner}>
             {messages.map((m) => {
@@ -393,6 +401,9 @@ export default function AssistantScreen() {
             <TextInput
               value={inputMessage}
               onChangeText={setInputMessage}
+              onFocus={() => {
+                setTimeout(() => chatScrollRef.current?.scrollToEnd({ animated: true }), 150);
+              }}
               placeholder="Escribe tu consulta o pide redactar un mensaje..."
               placeholderTextColor={theme.textMuted}
               style={[styles.chatInput, { color: theme.text }]}

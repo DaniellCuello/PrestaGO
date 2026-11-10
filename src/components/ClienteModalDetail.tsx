@@ -10,6 +10,8 @@ import {
   Linking,
   Platform,
   Alert,
+  KeyboardAvoidingView,
+  Keyboard,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -225,8 +227,16 @@ const ClienteModalDetailContent: React.FC<ClienteModalContentProps> = ({
   };
 
   return (
-    <View style={styles.overlay}>
-      <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      style={styles.overlay}>
+      <Pressable
+        style={StyleSheet.absoluteFill}
+        onPress={() => {
+          Keyboard.dismiss();
+          onClose();
+        }}
+      />
       <View
         style={[
           styles.sheetContainer,
@@ -286,6 +296,8 @@ const ClienteModalDetailContent: React.FC<ClienteModalContentProps> = ({
 
           <ScrollView
             showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+            automaticallyAdjustKeyboardInsets={true}
             contentContainerStyle={styles.scrollContent}>
             {/* Tarjeta de Identidad y Contacto Directo */}
             <View
@@ -852,7 +864,7 @@ const ClienteModalDetailContent: React.FC<ClienteModalContentProps> = ({
             }}
           />
         </View>
-      </View>
+      </KeyboardAvoidingView>
   );
 };
 
@@ -900,7 +912,8 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: BorderRadius['2xl'],
     borderTopRightRadius: BorderRadius['2xl'],
     borderWidth: 1,
-    maxHeight: '92%',
+    maxHeight: '88%',
+    flexShrink: 1,
   },
   sheetHeader: {
     paddingHorizontal: 20,
