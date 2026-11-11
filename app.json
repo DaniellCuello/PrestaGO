@@ -51,7 +51,10 @@
           "photosPermission": "PrestaGo necesita acceso a tu galería para seleccionar tu foto de perfil de administrador.",
           "cameraPermission": "PrestaGo necesita acceso a tu cámara para capturar tu foto de perfil de administrador."
         }
-      ]
+      ],
+      "expo-image",
+      "expo-web-browser",
+      "expo-asset"
     ],
     "experiments": {
       "typedRoutes": true,
