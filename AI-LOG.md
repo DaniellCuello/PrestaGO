@@ -98,6 +98,32 @@
   - `npx tsc --noEmit` completado con 0 errores.
   - `npx eslint .` completado con 0 errores.
 
+### [Hito 8] — Integración de Micrófono, Grabación y Asistente IA por Voz (Opción 1)
+- **Objetivo:** Permitir al administrador dictar consultas de voz y mensajes al Asistente IA directamente desde la barra de chat de `assistant.tsx`.
+- **Módulo Nativo de Audio Compatible con SDK 58 (`expo-audio`):**
+  - Migración a `expo-audio` (~58.0.12), el reemplazo oficial y modular del legacy `expo-av` para Expo SDK 58.
+  - Configuración del plugin en `app.json` con permisos de micrófono nativos (`microphonePermission` en iOS y `recordAudioAndroid: true` en Android).
+  - Manejo de permisos en tiempo de ejecución con `AudioModule.requestRecordingPermissionsAsync()` y configuración de sesión de audio con `AudioModule.setAudioModeAsync({ allowsRecording: true, playsInSilentMode: true })`.
+- **Interfaz de Grabación Interactiva en `assistant.tsx`:**
+  - **Barra de Entrada:** Botón de micrófono dedicado (`Mic`, `#1AA965`) ubicado al lado del campo de texto y botón de envío.
+  - **Modo Grabación Activo:**
+    - Reemplazo fluido de la barra de texto por un contenedor de grabación en tonos rojizos con borde suave.
+    - Indicador de grabación con punto rojo parpadeante mediante `Animated.loop`.
+    - Temporizador en tiempo real (`mm:ss`) vía `useAudioRecorderState(recorder, 200)`.
+    - Botón de **Descartar / Cancelar** (`Trash2`) con parada segura del recorder.
+    - Botón de **Detener y Enviar** (`Send` con degradado verde y sombra luminosa).
+- **Reproducción y Visualización de Notas de Voz en Chat:**
+  - Creación del subcomponente `VoiceMessageBubble` que representa una tarjeta de nota de voz con botón Play/Pause (`Play`, `Pause`), ondas de sonido representativas (waveform bars con progreso de tiempo) y duración formateada.
+  - Reproducción con `useAudioPlayer` y monitoreo de estado con `useAudioPlayerStatus`.
+- **Procesamiento Inteligente de Voz por la IA:**
+  - Generador contextual de respuestas para notas de voz (`generarRespuestaParaVoz`) que analiza el crédito del cliente en contexto:
+    - **Paz y Salvo:** Diagnóstico de cumplimiento y propuesta de renovación preferencial.
+    - **En Mora:** Análisis de atraso, cuota vencida y redacción automática de notificación para WhatsApp.
+    - **Al Día:** Detalle de cuotas restantes y redacción de recordatorio cordial preventivo.
+- **Verificación Técnica:**
+  - `npx tsc --noEmit`: 0 errores de tipado.
+  - `npx eslint "src/app/(tabs)/assistant.tsx"`: 0 errores de linter.
+
 ---
 
 ## 📐 Resumen del Modelo de Datos Firestore

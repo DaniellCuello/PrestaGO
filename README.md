@@ -14,6 +14,7 @@
 
 - 🟢 **Sincronización en Vivo con Firebase (Cloud Firestore & Auth):** Conexión transparente y compartida con la base de datos de producción existente en Android Studio/Flutter (`prestago-2002`).
 - 🤖 **Asistente Financiero con Inteligencia Artificial:** Resuelve dudas sobre la cartera, identifica clientes en mora y genera recordatorios de cobro listos para WhatsApp.
+- 🎙️ **Consultas por Voz en el Asistente IA (`expo-audio`):** Grabación nativa de voz con temporizador en tiempo real, reproductor de notas de voz con barra de onda en el chat y diagnósticos financieros automáticos.
 - 📱 **Integración de Contactos del Dispositivo:** Importación instantánea del nombre y teléfono de clientes desde la libreta de contactos (`expo-contacts`).
 - 🗺️ **Selector de Ciudades y Mapa GPS:** Catálogo de municipios de Colombia con autocompletado y selección de coordenadas exactas mediante mapa interactivo (`expo-location` y `react-native-maps`).
 - 📸 **Foto de Perfil del Administrador:** Captura directa con la cámara o selección desde galería (`expo-image-picker`).

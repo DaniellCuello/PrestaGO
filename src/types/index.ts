@@ -80,5 +80,8 @@ export interface ChatMessage {
   text: string;
   timestamp: string;
   actionableWhatsAppText?: string;
+  isAudio?: boolean;
+  audioDuration?: string;
+  audioUri?: string;
 }
 

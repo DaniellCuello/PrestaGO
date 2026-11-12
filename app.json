@@ -54,7 +54,14 @@
       ],
       "expo-image",
       "expo-web-browser",
-      "expo-asset"
+      "expo-asset",
+      [
+        "expo-audio",
+        {
+          "microphonePermission": "PrestaGo necesita acceso a tu micrófono para dictar consultas y mensajes de voz al Asistente IA.",
+          "recordAudioAndroid": true
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

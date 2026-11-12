@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,6 +9,8 @@ import {
   Linking,
   Platform,
   KeyboardAvoidingView,
+  Alert,
+  Animated,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -18,12 +20,124 @@ import {
   MessageCircle,
   User,
   Share2,
+  Mic,
+  Trash2,
+  Play,
+  Pause,
+  Sparkles,
 } from 'lucide-react-native';
+import {
+  useAudioRecorder,
+  useAudioRecorderState,
+  useAudioPlayer,
+  useAudioPlayerStatus,
+  RecordingPresets,
+  AudioModule,
+} from 'expo-audio';
 import { usePrestago } from '@/context/PrestagoContext';
 import { ChatMessage, Cliente } from '@/types';
 import { BrandColors, Colors, BorderRadius, Shadows, MaxContentWidth } from '@/constants/theme';
 import { HeaderBar } from '@/components/HeaderBar';
 import { formatCurrency, formatDate } from '@/utils/finance';
+
+/**
+ * Componente reproductor para notas de voz en las burbujas de chat
+ */
+function VoiceMessageBubble({
+  uri,
+  duration,
+  isUser,
+  theme,
+}: {
+  uri?: string;
+  duration?: string;
+  isUser: boolean;
+  theme: any;
+}) {
+  const player = useAudioPlayer(uri ? { uri } : null);
+  const status = useAudioPlayerStatus(player);
+
+  const handleTogglePlay = async () => {
+    if (!player) return;
+    try {
+      if (status.playing) {
+        player.pause();
+      } else {
+        if (status.didJustFinish || (status.currentTime >= status.duration && status.duration > 0)) {
+          await player.seekTo(0);
+        }
+        player.play();
+      }
+    } catch (e) {
+      console.warn('Error reproduciendo nota de voz:', e);
+    }
+  };
+
+  const progressPercent =
+    status.duration > 0
+      ? Math.min(100, Math.max(0, (status.currentTime / status.duration) * 100))
+      : status.playing
+      ? 50
+      : 0;
+
+  return (
+    <View style={styles.voiceBubbleContainer}>
+      <Pressable
+        onPress={handleTogglePlay}
+        style={[
+          styles.voicePlayBtn,
+          {
+            backgroundColor: isUser ? '#FFFFFF' : BrandColors.primary,
+          },
+        ]}>
+        {status.playing ? (
+          <Pause size={14} color={isUser ? BrandColors.primary : '#FFFFFF'} />
+        ) : (
+          <Play size={14} color={isUser ? BrandColors.primary : '#FFFFFF'} />
+        )}
+      </Pressable>
+
+      <View style={styles.voiceProgressWrapper}>
+        <View style={styles.voiceWaveRow}>
+          {[40, 70, 100, 60, 85, 45, 90, 65, 80, 50, 75, 95, 60, 40].map((h, idx) => {
+            const barFraction = (idx / 14) * 100;
+            const isFilled = progressPercent >= barFraction;
+            return (
+              <View
+                key={idx}
+                style={[
+                  styles.waveBar,
+                  {
+                    height: (h / 100) * 18 + 4,
+                    backgroundColor: isUser
+                      ? isFilled
+                        ? '#FFFFFF'
+                        : 'rgba(255,255,255,0.4)'
+                      : isFilled
+                      ? BrandColors.primary
+                      : theme.border,
+                  },
+                ]}
+              />
+            );
+          })}
+        </View>
+
+        <View style={styles.voiceMetaRow}>
+          <Text
+            style={[
+              styles.voiceDurationLabel,
+              { color: isUser ? 'rgba(255,255,255,0.85)' : theme.textMuted },
+            ]}>
+            {status.playing
+              ? `${Math.floor(status.currentTime)}s / ${duration || '0:00'}`
+              : `Nota de voz • ${duration || '0:00'}`}
+          </Text>
+        </View>
+      </View>
+    </View>
+  );
+}
 
 export default function AssistantScreen() {
   const { clientes, isDarkMode, toggleTheme, metricas } = usePrestago();
@@ -37,11 +151,40 @@ export default function AssistantScreen() {
 
   const selectedCliente = clientes.find((c) => c.id === selectedClienteId) || clientes[0];
 
+  // Configuración del grabador nativo de audio
+  const recorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
+  const recorderState = useAudioRecorderState(recorder, 200);
+
+  // Animación de pulso para el indicador de grabación
+  const [pulseAnim] = useState(() => new Animated.Value(1));
+  useEffect(() => {
+    if (recorderState.isRecording) {
+      const pulse = Animated.loop(
+        Animated.sequence([
+          Animated.timing(pulseAnim, {
+            toValue: 0.25,
+            duration: 500,
+            useNativeDriver: true,
+          }),
+          Animated.timing(pulseAnim, {
+            toValue: 1,
+            duration: 500,
+            useNativeDriver: true,
+          }),
+        ])
+      );
+      pulse.start();
+      return () => pulse.stop();
+    } else {
+      pulseAnim.setValue(1);
+    }
+  }, [recorderState.isRecording, pulseAnim]);
+
   const INITIAL_MESSAGES: ChatMessage[] = [
     {
       id: 'msg-1',
       sender: 'assistant',
-      text: `¡Hola! Soy tu Asistente IA PrestaGo con tecnología Gemini 🤖💼.\n\nPuedo redactar mensajes persuasivos de cobro para WhatsApp, liquidar intereses en tiempo real y asesorarte en reestructuración de deudas.\n\nSelecciona un cliente arriba o elige una acción rápida abajo para comenzar.`,
+      text: `¡Hola! Soy tu Asistente IA PrestaGo con tecnología Gemini 🤖💼.\n\nPuedo redactar mensajes persuasivos de cobro para WhatsApp, liquidar intereses en tiempo real y asesorarte en reestructuración de deudas.\n\nEscribe o pulsa el micrófono 🎙️ para dictarme tu consulta por voz.`,
       timestamp: 'Ahora',
     },
   ];
@@ -106,6 +249,42 @@ export default function AssistantScreen() {
     return { reply, waText };
   };
 
+  // Generador de respuestas contextuales para consultas de voz
+  const generarRespuestaParaVoz = (targetCli: Cliente, durationSecs: number) => {
+    let reply = '';
+    let waText = '';
+
+    const tieneMora = targetCli.diasMora > 0;
+    const esPazYSalvo = targetCli.estadoMora === 'paz_y_salvo' || targetCli.totalPendiente <= 0;
+
+    if (esPazYSalvo) {
+      reply = `🎙️ **Audio recibido (${durationSecs}s)** — *Consulta sobre ${targetCli.nombre}*\n\n` +
+        `He procesado tu consulta de voz. Este cliente se encuentra actualmente **A Paz y Salvo** con su crédito completamente cancelado ($0 saldo pendiente).\n\n` +
+        `💡 **Recomendación IA:** Por su excelente cumplimiento, califica para una renovación de crédito o ampliación de cupo. He preparado un mensaje listo para WhatsApp por si deseas ofrecerle una nueva opción de préstamo.`;
+      waText = `Hola estimado/a ${targetCli.nombre}, desde PrestaGo te felicitamos por haber completado el pago total de tu crédito. Por tu excelente cumplimiento, tienes preaprobado un cupo preferencial. Si requieres financiamiento, ¡avísanos con gusto!`;
+    } else if (tieneMora) {
+      reply = `🎙️ **Audio recibido (${durationSecs}s)** — *Diagnóstico de Cartera para ${targetCli.nombre}*\n\n` +
+        `He analizado el crédito del cliente en base a tu consulta:\n` +
+        `• **Estado:** En mora (${targetCli.diasMora} días de retraso)\n` +
+        `• **Cuota vencida:** ${formatCurrency(targetCli.cuota)}\n` +
+        `• **Deuda total activa:** ${formatCurrency(targetCli.totalPendiente)}\n` +
+        `• **Celular registrado:** ${targetCli.celular}\n\n` +
+        `He generado abajo una notificación formal de cobro lista para compartir por WhatsApp:`;
+      waText = `Hola ${targetCli.nombre}, te saludo de PrestaGo. Registramos un saldo pendiente de ${formatCurrency(targetCli.totalPendiente)} con ${targetCli.diasMora} días de retraso en tu cuota de ${formatCurrency(targetCli.cuota)}. Agradecemos tu confirmación hoy para regularizar el estado de tu crédito. ¡Gracias!`;
+    } else {
+      reply = `🎙️ **Audio recibido (${durationSecs}s)** — *Resumen de ${targetCli.nombre}*\n\n` +
+        `Tu cliente está **Al Día** en sus pagos:\n` +
+        `• **Próximo cobro:** ${formatDate(targetCli.proximoCobro)}\n` +
+        `• **Valor cuota:** ${formatCurrency(targetCli.cuota)}\n` +
+        `• **Saldo restante:** ${formatCurrency(targetCli.totalPendiente)}\n` +
+        `• **Cuotas pagadas:** ${targetCli.cuotasPagadas} de ${targetCli.cuotasTotales === 999 ? 'Indefinido' : targetCli.cuotasTotales}\n\n` +
+        `Te preparé un recordatorio preventivo cordial para mantener su compromiso de pago:`;
+      waText = `Hola ${targetCli.nombre}, esperamos que tengas un excelente día. Te recordamos cordialmente tu cuota de ${formatCurrency(targetCli.cuota)} de PrestaGo programada para el ${formatDate(targetCli.proximoCobro)}. ¡Muchas gracias por tu puntualidad!`;
+    }
+
+    return { reply, waText };
+  };
+
   const handleSend = (textToSend?: string) => {
     const text = textToSend || inputMessage;
     if (!text.trim()) return;
@@ -134,6 +313,82 @@ export default function AssistantScreen() {
     }, 400);
   };
 
+  // Iniciar grabación de audio
+  const handleStartRecording = async () => {
+    try {
+      const permission = await AudioModule.requestRecordingPermissionsAsync();
+      if (!permission.granted) {
+        Alert.alert(
+          'Permiso de Micrófono',
+          'PrestaGo necesita acceso a tu micrófono para dictar tus consultas y redactar mensajes por voz al Asistente IA. Por favor actívalo en los ajustes de tu dispositivo.',
+          [{ text: 'Entendido' }]
+        );
+        return;
+      }
+
+      await AudioModule.setAudioModeAsync({
+        allowsRecording: true,
+        playsInSilentMode: true,
+      });
+
+      await recorder.prepareToRecordAsync();
+      recorder.record();
+    } catch (error) {
+      console.error('Error al iniciar grabación:', error);
+      Alert.alert('Error', 'No se pudo activar el micrófono.');
+    }
+  };
+
+  // Detener y enviar grabación
+  const handleStopAndSendRecording = async () => {
+    try {
+      const durationSecs = Math.max(1, Math.round(recorderState.durationMillis / 1000));
+      const mins = Math.floor(durationSecs / 60);
+      const secs = durationSecs % 60;
+      const durationStr = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+
+      await recorder.stop();
+      const uri = recorder.uri;
+
+      const userVoiceMsg: ChatMessage = {
+        id: `user-voice-${Date.now()}`,
+        sender: 'user',
+        text: 'Nota de voz dictada al Asistente IA',
+        isAudio: true,
+        audioDuration: durationStr,
+        audioUri: uri || undefined,
+        timestamp: 'Ahora',
+      };
+
+      setMessages((prev) => [...prev, userVoiceMsg]);
+
+      // Respuesta de la IA
+      setTimeout(() => {
+        const { reply, waText } = generarRespuestaParaVoz(selectedCliente, durationSecs);
+        const aiMsg: ChatMessage = {
+          id: `ai-${Date.now()}`,
+          sender: 'assistant',
+          text: reply,
+          actionableWhatsAppText: waText || undefined,
+          timestamp: 'Ahora',
+        };
+        setMessages((prev) => [...prev, aiMsg]);
+      }, 500);
+    } catch (error) {
+      console.error('Error al enviar nota de voz:', error);
+      Alert.alert('Error', 'No se pudo procesar la grabación de voz.');
+    }
+  };
+
+  // Cancelar y descartar grabación
+  const handleCancelRecording = async () => {
+    try {
+      await recorder.stop();
+    } catch (error) {
+      console.warn('Error cancelando grabación:', error);
+    }
+  };
+
   const handleOpenWhatsApp = (text: string) => {
     if (!selectedCliente) return;
     const cleanNumber = selectedCliente.celular.replace(/[^0-9]/g, '');
@@ -141,6 +396,13 @@ export default function AssistantScreen() {
     Linking.openURL(`https://wa.me/${cleanNumber}?text=${encoded}`).catch(() => {
       Linking.openURL(`https://wa.me/?text=${encoded}`).catch(() => {});
     });
+  };
+
+  const formatDurationMillis = (millis: number) => {
+    const totalSecs = Math.floor(millis / 1000);
+    const mins = Math.floor(totalSecs / 60);
+    const secs = totalSecs % 60;
+    return `${mins < 10 ? '0' : ''}${mins}:${secs < 10 ? '0' : ''}${secs}`;
   };
 
   return (
@@ -248,13 +510,23 @@ export default function AssistantScreen() {
                             { backgroundColor: BrandColors.primary },
                           ],
                     ]}>
-                    <Text
-                      style={[
-                        styles.messageText,
-                        { color: isAI ? theme.text : '#FFFFFF' },
-                      ]}>
-                      {m.text}
-                    </Text>
+                    {/* Reproductor si es nota de voz */}
+                    {m.isAudio ? (
+                      <VoiceMessageBubble
+                        uri={m.audioUri}
+                        duration={m.audioDuration}
+                        isUser={!isAI}
+                        theme={theme}
+                      />
+                    ) : (
+                      <Text
+                        style={[
+                          styles.messageText,
+                          { color: isAI ? theme.text : '#FFFFFF' },
+                        ]}>
+                        {m.text}
+                      </Text>
+                    )}
 
                     {/* Caja de Acción WhatsApp si la IA redactó un mensaje */}
                     {m.actionableWhatsAppText && (
@@ -306,9 +578,13 @@ export default function AssistantScreen() {
 
             {/* Sugerencias Rápidas */}
             <View style={styles.suggestionsContainer}>
-              <Text style={[styles.suggestionsTitle, { color: theme.textMuted }]}>
-                Prompts Rápidos para {selectedCliente?.nombre.split(' ')[0]}:
-              </Text>
+              <View style={styles.suggestionsHeaderRow}>
+                <Sparkles size={13} color={BrandColors.primary} />
+                <Text style={[styles.suggestionsTitle, { color: theme.textMuted }]}>
+                  Prompts Rápidos para {selectedCliente?.nombre.split(' ')[0]}:
+                </Text>
+              </View>
+
               <View style={styles.chipsRow}>
                 <Pressable
                   onPress={() =>
@@ -388,43 +664,111 @@ export default function AssistantScreen() {
           </View>
         </ScrollView>
 
-        {/* Input de Mensaje en la Parte Inferior */}
-        <View
-          style={[
-            styles.inputBar,
-            {
-              backgroundColor: theme.card,
-              borderTopColor: theme.border,
-            },
-          ]}>
-          <View style={styles.inputInnerRow}>
-            <TextInput
-              value={inputMessage}
-              onChangeText={setInputMessage}
-              onFocus={() => {
-                setTimeout(() => chatScrollRef.current?.scrollToEnd({ animated: true }), 150);
-              }}
-              placeholder="Escribe tu consulta o pide redactar un mensaje..."
-              placeholderTextColor={theme.textMuted}
-              style={[styles.chatInput, { color: theme.text }]}
-              onSubmitEditing={() => handleSend()}
-            />
+        {/* Input Bar / Barra de Grabación en la Parte Inferior */}
+        {recorderState.isRecording ? (
+          <View
+            style={[
+              styles.inputBar,
+              styles.recordingBar,
+              {
+                backgroundColor: isDarkMode ? '#201314' : '#FEF2F2',
+                borderTopColor: isDarkMode ? '#7F1D1D' : '#FCA5A5',
+              },
+            ]}>
+            <View style={styles.recordingInnerRow}>
+              {/* Descartar nota */}
+              <Pressable
+                onPress={handleCancelRecording}
+                style={({ pressed }) => [
+                  styles.cancelRecordingBtn,
+                  { opacity: pressed ? 0.7 : 1 },
+                ]}>
+                <Trash2 size={19} color="#EF4444" />
+              </Pressable>
 
-            <Pressable
-              onPress={() => handleSend()}
-              style={({ pressed }) => [
-                styles.sendBtn,
-                { opacity: pressed ? 0.8 : 1 },
-                Shadows.glowGreen,
-              ]}>
-              <LinearGradient
-                colors={[BrandColors.primary, BrandColors.primaryDark]}
-                style={styles.sendGradient}>
-                <Send size={18} color="#FFFFFF" />
-              </LinearGradient>
-            </Pressable>
+              {/* Indicador con pulso y contador */}
+              <View style={styles.recordingTimerContainer}>
+                <Animated.View style={[styles.blinkingDot, { opacity: pulseAnim }]} />
+                <Text style={[styles.recordingStatusText, { color: isDarkMode ? '#FCA5A5' : '#DC2626' }]}>
+                  Grabando consulta...
+                </Text>
+                <Text style={[styles.recordingTimerText, { color: isDarkMode ? '#FFFFFF' : '#991B1B' }]}>
+                  {formatDurationMillis(recorderState.durationMillis)}
+                </Text>
+              </View>
+
+              {/* Detener y Enviar a la IA */}
+              <Pressable
+                onPress={handleStopAndSendRecording}
+                style={({ pressed }) => [
+                  styles.sendBtn,
+                  Shadows.glowGreen,
+                  { opacity: pressed ? 0.8 : 1 },
+                ]}>
+                <LinearGradient
+                  colors={[BrandColors.primary, BrandColors.primaryDark]}
+                  style={styles.sendGradient}>
+                  <Send size={18} color="#FFFFFF" />
+                </LinearGradient>
+              </Pressable>
+            </View>
           </View>
-        </View>
+        ) : (
+          <View
+            style={[
+              styles.inputBar,
+              {
+                backgroundColor: theme.card,
+                borderTopColor: theme.border,
+              },
+            ]}>
+            <View style={styles.inputInnerRow}>
+              <TextInput
+                value={inputMessage}
+                onChangeText={setInputMessage}
+                onFocus={() => {
+                  setTimeout(() => chatScrollRef.current?.scrollToEnd({ animated: true }), 150);
+                }}
+                placeholder="Escribe o pulsa el micrófono para hablar..."
+                placeholderTextColor={theme.textMuted}
+                style={[styles.chatInput, { color: theme.text }]}
+                onSubmitEditing={() => handleSend()}
+              />
+
+              {/* Botón de Micrófono */}
+              <Pressable
+                onPress={handleStartRecording}
+                style={({ pressed }) => [
+                  styles.micBtn,
+                  {
+                    backgroundColor: isDarkMode ? '#13231B' : '#E8F8F0',
+                    borderColor: BrandColors.primary,
+                    opacity: pressed ? 0.7 : 1,
+                  },
+                ]}>
+                <Mic size={19} color={BrandColors.primary} />
+              </Pressable>
+
+              {/* Botón de Enviar texto */}
+              <Pressable
+                onPress={() => handleSend()}
+                disabled={!inputMessage.trim()}
+                style={({ pressed }) => [
+                  styles.sendBtn,
+                  {
+                    opacity: !inputMessage.trim() ? 0.4 : pressed ? 0.8 : 1,
+                  },
+                  inputMessage.trim() ? Shadows.glowGreen : undefined,
+                ]}>
+                <LinearGradient
+                  colors={[BrandColors.primary, BrandColors.primaryDark]}
+                  style={styles.sendGradient}>
+                  <Send size={18} color="#FFFFFF" />
+                </LinearGradient>
+              </Pressable>
+            </View>
+          </View>
+        )}
       </KeyboardAvoidingView>
     </View>
   );
@@ -501,6 +845,40 @@ const styles = StyleSheet.create({
     marginTop: 6,
     alignSelf: 'flex-end',
   },
+  voiceBubbleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    paddingVertical: 4,
+    minWidth: 200,
+  },
+  voicePlayBtn: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  voiceProgressWrapper: {
+    flex: 1,
+  },
+  voiceWaveRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+    height: 22,
+  },
+  waveBar: {
+    width: 3,
+    borderRadius: 2,
+  },
+  voiceMetaRow: {
+    marginTop: 4,
+  },
+  voiceDurationLabel: {
+    fontSize: 11,
+    fontWeight: '600',
+  },
   waActionBox: {
     borderRadius: BorderRadius.lg,
     borderWidth: 1,
@@ -542,11 +920,16 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 10,
   },
+  suggestionsHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 8,
+  },
   suggestionsTitle: {
     fontSize: 11,
     fontWeight: '700',
     textTransform: 'uppercase',
-    marginBottom: 8,
   },
   chipsRow: {
     flexDirection: 'row',
@@ -568,6 +951,9 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderTopWidth: 1,
   },
+  recordingBar: {
+    paddingVertical: 10,
+  },
   responsiveInner: {
     width: '100%',
     maxWidth: MaxContentWidth,
@@ -579,12 +965,20 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: MaxContentWidth,
     alignSelf: 'center',
-    gap: 10,
+    gap: 8,
   },
   chatInput: {
     flex: 1,
     fontSize: 14,
     height: 44,
+  },
+  micBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: BorderRadius.full,
+    borderWidth: 1.5,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   sendBtn: {
     borderRadius: BorderRadius.full,
@@ -596,5 +990,41 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  recordingInnerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
+    maxWidth: MaxContentWidth,
+    alignSelf: 'center',
+    gap: 12,
+  },
+  cancelRecordingBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: BorderRadius.full,
+    backgroundColor: 'rgba(239, 68, 68, 0.12)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  recordingTimerContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  blinkingDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: '#EF4444',
+  },
+  recordingStatusText: {
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  recordingTimerText: {
+    fontSize: 13,
+    fontWeight: '800',
+  },
 });
-
