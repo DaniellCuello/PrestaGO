@@ -351,26 +351,51 @@ export default function ProfileScreen() {
             Shadows.sm,
           ]}>
           {/* Ajuste de Notificaciones */}
-          <View style={styles.settingsItem}>
-            <View style={styles.settingsItemLeft}>
+          <View style={styles.prefRow}>
+            <View style={styles.prefRowLeft}>
               <View style={[styles.prefIconBox, { backgroundColor: isDarkMode ? '#13231B' : '#E8F8F0' }]}>
                 <Bell size={18} color={BrandColors.primary} />
               </View>
-              <View style={{ flex: 1, paddingRight: 8 }}>
-                <Text style={[styles.settingsTitle, { color: theme.text }]}>
-                  Notificaciones de Cobro
-                </Text>
-                <Text style={[styles.settingsSub, { color: theme.textSecondary }]}>
-                  {notificacionesCobro ? 'Recordatorios automáticos activados' : 'Recordatorios desactivados'}
+              <View style={styles.prefTextCol}>
+                <View style={styles.prefTitleWithBadge}>
+                  <Text style={[styles.prefTitle, { color: theme.text }]} numberOfLines={1}>
+                    Notificaciones de Cobro
+                  </Text>
+                  <View
+                    style={[
+                      styles.prefStatusBadge,
+                      {
+                        backgroundColor: notificacionesCobro
+                          ? (isDarkMode ? '#132E21' : '#E8F8F0')
+                          : (isDarkMode ? '#222834' : '#F1F5F9'),
+                      },
+                    ]}>
+                    <Text
+                      style={[
+                        styles.prefStatusText,
+                        {
+                          color: notificacionesCobro ? BrandColors.primary : theme.textMuted,
+                        },
+                      ]}>
+                      {notificacionesCobro ? 'Activo' : 'Pausado'}
+                    </Text>
+                  </View>
+                </View>
+                <Text style={[styles.prefSub, { color: theme.textSecondary }]}>
+                  {notificacionesCobro
+                    ? 'Alertas y recordatorios automáticos de cuotas'
+                    : 'Avisos de cobro y vencimientos desactivados'}
                 </Text>
               </View>
             </View>
-            <Switch
-              value={notificacionesCobro}
-              onValueChange={handleToggleNotificaciones}
-              trackColor={{ false: '#CBD5E1', true: BrandColors.primary }}
-              thumbColor="#FFFFFF"
-            />
+            <View style={styles.prefSwitchContainer}>
+              <Switch
+                value={notificacionesCobro}
+                onValueChange={handleToggleNotificaciones}
+                trackColor={{ false: '#CBD5E1', true: BrandColors.primary }}
+                thumbColor="#FFFFFF"
+              />
+            </View>
           </View>
 
           <View style={[styles.settingsDivider, { backgroundColor: theme.border }]} />
@@ -379,18 +404,18 @@ export default function ProfileScreen() {
           <Pressable
             onPress={() => setTerminosModalVisible(true)}
             style={({ pressed }) => [
-              styles.settingsItemAction,
+              styles.prefRow,
               pressed && { opacity: 0.75 },
             ]}>
-            <View style={styles.settingsItemLeft}>
+            <View style={styles.prefRowLeft}>
               <View style={[styles.prefIconBox, { backgroundColor: isDarkMode ? '#162238' : '#EFF6FF' }]}>
                 <FileText size={18} color="#3B82F6" />
               </View>
-              <View style={{ flex: 1, paddingRight: 8 }}>
-                <Text style={[styles.settingsTitle, { color: theme.text }]}>
+              <View style={styles.prefTextCol}>
+                <Text style={[styles.prefTitle, { color: theme.text }]}>
                   Términos y Condiciones
                 </Text>
-                <Text style={[styles.settingsSub, { color: theme.textSecondary }]}>
+                <Text style={[styles.prefSub, { color: theme.textSecondary }]}>
                   Reglas de microcrédito, tasas y uso legal
                 </Text>
               </View>
@@ -404,18 +429,18 @@ export default function ProfileScreen() {
           <Pressable
             onPress={() => setPrivacidadModalVisible(true)}
             style={({ pressed }) => [
-              styles.settingsItemAction,
+              styles.prefRow,
               pressed && { opacity: 0.75 },
             ]}>
-            <View style={styles.settingsItemLeft}>
+            <View style={styles.prefRowLeft}>
               <View style={[styles.prefIconBox, { backgroundColor: isDarkMode ? '#221938' : '#F5F3FF' }]}>
                 <ShieldCheck size={18} color="#8B5CF6" />
               </View>
-              <View style={{ flex: 1, paddingRight: 8 }}>
-                <Text style={[styles.settingsTitle, { color: theme.text }]}>
+              <View style={styles.prefTextCol}>
+                <Text style={[styles.prefTitle, { color: theme.text }]}>
                   Política de Privacidad
                 </Text>
-                <Text style={[styles.settingsSub, { color: theme.textSecondary }]}>
+                <Text style={[styles.prefSub, { color: theme.textSecondary }]}>
                   Protección de datos personales (Habeas Data Ley 1581)
                 </Text>
               </View>
@@ -911,26 +936,65 @@ const styles = StyleSheet.create({
   settingsGroup: {
     borderRadius: BorderRadius.xl,
     borderWidth: 1,
-    padding: 14,
+    overflow: 'hidden',
     marginBottom: 20,
   },
-  settingsItem: {
+  prefRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
   },
-  settingsItemLeft: {
+  prefRowLeft: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
+    marginRight: 10,
   },
-  settingsTitle: {
-    fontSize: 15,
+  prefTextCol: {
+    flex: 1,
+  },
+  prefTitleWithBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    flexWrap: 'wrap',
+  },
+  prefTitle: {
+    fontSize: 14,
     fontWeight: '700',
   },
-  settingsSub: {
+  prefSub: {
     fontSize: 11,
     marginTop: 2,
+    lineHeight: 15,
+  },
+  prefStatusBadge: {
+    paddingHorizontal: 7,
+    paddingVertical: 2,
+    borderRadius: 6,
+  },
+  prefStatusText: {
+    fontSize: 10,
+    fontWeight: '800',
+  },
+  prefSwitchContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 4,
+  },
+  prefIconBox: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  settingsDivider: {
+    height: 1,
+    marginHorizontal: 16,
   },
   dbStatusCard: {
     borderRadius: BorderRadius.xl,
@@ -1088,24 +1152,6 @@ const styles = StyleSheet.create({
   optionDesc: {
     fontSize: 11,
     marginTop: 2,
-  },
-  prefIconBox: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  settingsItemAction: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-  },
-  settingsDivider: {
-    height: 1,
-    marginHorizontal: 16,
   },
   modalLegalSheet: {
     borderTopLeftRadius: BorderRadius['2xl'],

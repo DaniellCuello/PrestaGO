@@ -109,7 +109,7 @@ export default function ClientesScreen() {
       id: 'paz_y_salvo',
       label: 'Paz y Salvo',
       count: clientes.filter((c) => c.estadoMora === 'paz_y_salvo').length,
-      color: '#10B981',
+      color: '#475569',
     },
   ];
 

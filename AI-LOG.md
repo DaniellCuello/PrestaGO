@@ -80,6 +80,24 @@
   - `npx tsc --noEmit` completado con 0 errores de tipado.
   - `npx eslint .` completado con 0 errores de linter.
 
+### [Hito 7] — Pulido de Notificaciones en Perfil e Identificación Visual de Clientes a Paz y Salvo en Gris Oscuro
+- **Ajuste de Notificaciones en Perfil (`profile.tsx`):**
+  - Solucionado el desbordamiento horizontal del `Switch` en la tarjeta de preferencias.
+  - Implementado un contenedor con ancho controlado (`prefSwitchContainer`) y fila responsiva unificada (`prefRow`) con márgenes de 16px para todas las filas (`Notificaciones`, `Términos` y `Privacidad`).
+  - Añadido un indicador de estado dinámico (`Activo` en verde / `Pausado` en gris) junto al título para una visualización premium y clara.
+- **Identificación de Clientes a Paz y Salvo en Gris Oscuro:**
+  - Modificado el semáforo y configuración visual en `src/utils/finance.ts` (`getInfoEstadoMora`) para que `paz_y_salvo` utilice `#475569` (gris oscuro / slate) en lugar del verde de préstamos activos al día.
+  - Actualizado el filtro de estado en `src/app/(tabs)/index.tsx` para reflejar el color gris oscuro en la pestaña de clientes.
+  - En `ClienteCard.tsx`, los créditos a paz y salvo ahora muestran:
+    - Indicador lateral y badge en gris oscuro (`#475569`).
+    - Borde y contenedor en gris neutro para distinguir préstamos saldados de préstamos activos.
+    - Cuota y saldo pendiente en gris oscuro (`$0 (Saldado)`).
+    - Barra de progreso de amortización y botón de comprobante en degradado gris pizarra (`['#475569', '#334155']`).
+  - En `ClienteModalDetail.tsx`, la tarjeta de cliente a paz y salvo y los badges adoptan la estética en gris oscuro.
+- **Verificación:**
+  - `npx tsc --noEmit` completado con 0 errores.
+  - `npx eslint .` completado con 0 errores.
+
 ---
 
 ## 📐 Resumen del Modelo de Datos Firestore

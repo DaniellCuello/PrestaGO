@@ -765,15 +765,15 @@ const ClienteModalDetailContent: React.FC<ClienteModalContentProps> = ({
                 style={[
                   styles.renovacionCard,
                   {
-                    backgroundColor: isDarkMode ? '#062E1A' : '#D1FAE5',
-                    borderColor: '#10B981',
+                    backgroundColor: isDarkMode ? '#1E293B' : '#F1F5F9',
+                    borderColor: '#475569',
                   },
                 ]}>
-                <ShieldCheck size={36} color="#10B981" />
-                <Text style={[styles.renovacionTitle, { color: isDarkMode ? '#6EE7B7' : '#065F46' }]}>
+                <ShieldCheck size={36} color="#475569" />
+                <Text style={[styles.renovacionTitle, { color: isDarkMode ? '#F8FAFC' : '#1E293B' }]}>
                   ¡Cliente a Paz y Salvo!
                 </Text>
-                <Text style={[styles.renovacionSub, { color: isDarkMode ? '#A7F3D0' : '#047857' }]}>
+                <Text style={[styles.renovacionSub, { color: isDarkMode ? '#94A3B8' : '#475569' }]}>
                   Este cliente no tiene saldos pendientes. Su historial es intachable y califica para una renovación inmediata.
                 </Text>
 

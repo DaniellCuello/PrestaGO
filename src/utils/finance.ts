@@ -85,9 +85,9 @@ export function getInfoEstadoMora(estado: EstadoMora) {
     case 'paz_y_salvo':
       return {
         label: 'A Paz y Salvo',
-        color: '#1AA965',
-        bgColor: '#E8F8F0',
-        borderColor: '#1AA965',
+        color: '#475569',
+        bgColor: '#F1F5F9',
+        borderColor: '#475569',
         badge: 'PAZ Y SALVO',
         descripcion: 'Deuda liquidada al 100%',
       };

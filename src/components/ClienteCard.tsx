@@ -71,8 +71,12 @@ export const ClienteCard: React.FC<ClienteCardProps> = ({
       style={({ pressed }) => [
         styles.cardContainer,
         {
-          backgroundColor: theme.card,
-          borderColor: isPazYSalvo ? BrandColors.primary : theme.border,
+          backgroundColor: isPazYSalvo
+            ? (isDarkMode ? '#111620' : '#F8FAFC')
+            : theme.card,
+          borderColor: isPazYSalvo
+            ? (isDarkMode ? '#334155' : '#CBD5E1')
+            : theme.border,
           opacity: pressed ? 0.95 : 1,
         },
         Shadows.md,
@@ -161,12 +165,26 @@ export const ClienteCard: React.FC<ClienteCardProps> = ({
               style={[
                 styles.chip,
                 {
-                  backgroundColor: isDarkMode ? '#172722' : '#ECFDF5',
-                  borderColor: isDarkMode ? '#134E35' : '#A7F3D0',
+                  backgroundColor: isPazYSalvo
+                    ? (isDarkMode ? '#1E293B' : '#F1F5F9')
+                    : (isDarkMode ? '#172722' : '#ECFDF5'),
+                  borderColor: isPazYSalvo
+                    ? (isDarkMode ? '#475569' : '#CBD5E1')
+                    : (isDarkMode ? '#134E35' : '#A7F3D0'),
                 },
               ]}>
-              <Text style={[styles.chipText, { color: BrandColors.primary }]}>
-                Cuota {cliente.cuotasPagadas} de {cliente.cuotasTotales}
+              <Text
+                style={[
+                  styles.chipText,
+                  {
+                    color: isPazYSalvo
+                      ? (isDarkMode ? '#94A3B8' : '#475569')
+                      : BrandColors.primary,
+                  },
+                ]}>
+                {isPazYSalvo
+                  ? `Saldado (${cliente.cuotasPagadas} de ${cliente.cuotasTotales} cuotas)`
+                  : `Cuota ${cliente.cuotasPagadas} de ${cliente.cuotasTotales}`}
               </Text>
             </View>
           )}
@@ -204,7 +222,15 @@ export const ClienteCard: React.FC<ClienteCardProps> = ({
             <Text style={[styles.gridLabel, { color: theme.textMuted }]}>
               Cuota Mensual
             </Text>
-            <Text style={[styles.gridValuePrimary, { color: BrandColors.primary }]}>
+            <Text
+              style={[
+                styles.gridValuePrimary,
+                {
+                  color: isPazYSalvo
+                    ? (isDarkMode ? '#94A3B8' : '#475569')
+                    : BrandColors.primary,
+                },
+              ]}>
               {formatCurrency(cliente.cuota)}
             </Text>
             <Text style={[styles.gridSub, { color: theme.textSecondary }]}>
@@ -223,7 +249,7 @@ export const ClienteCard: React.FC<ClienteCardProps> = ({
                 styles.gridValue,
                 {
                   color: isPazYSalvo
-                    ? BrandColors.primary
+                    ? (isDarkMode ? '#94A3B8' : '#475569')
                     : cliente.estadoMora === 'mora_3'
                     ? BrandColors.danger
                     : theme.text,
@@ -261,9 +287,7 @@ export const ClienteCard: React.FC<ClienteCardProps> = ({
                 styles.progressBarFill,
                 {
                   width: `${pctPagado}%`,
-                  backgroundColor: isPazYSalvo
-                    ? BrandColors.primary
-                    : statusInfo.color,
+                  backgroundColor: statusInfo.color,
                 },
               ]}
             />
@@ -303,12 +327,12 @@ export const ClienteCard: React.FC<ClienteCardProps> = ({
             style={({ pressed }) => [
               styles.payButton,
               { opacity: pressed ? 0.85 : 1 },
-              Shadows.glowGreen,
+              isPazYSalvo ? undefined : Shadows.glowGreen,
             ]}>
             <LinearGradient
               colors={
                 isPazYSalvo
-                  ? ['#059669', '#047857']
+                  ? ['#475569', '#334155']
                   : [BrandColors.primary, BrandColors.primaryDark]
               }
               start={{ x: 0, y: 0 }}
