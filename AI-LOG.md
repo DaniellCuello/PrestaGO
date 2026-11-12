@@ -124,6 +124,21 @@
   - `npx tsc --noEmit`: 0 errores de tipado.
   - `npx eslint "src/app/(tabs)/assistant.tsx"`: 0 errores de linter.
 
+### [Hito 9] — Integración del Logo Oficial PrestaGo en Toda la Aplicación
+- **Objetivo:** Reemplazar los iconos genéricos y badges provisionales (`Wallet`, `ShieldCheck`) por el logo oficial de la marca (`assets/images/PrestaGo.png`), adaptado proporcionalmente a cada pantalla y posición.
+- **Implementaciones y Posiciones Adaptadas:**
+  - **Barra de Navegación Principal (`HeaderBar.tsx`):**
+    - Logo de 38x38 px con `borderRadius: 10`, ubicado a la izquierda de "PrestaGo PRO" y "Control Financiero Inteligente".
+  - **Pantalla de Iniciar Sesión (`login.tsx`):**
+    - Logo central de 76x76 px con `borderRadius: 20` y sombra verde luminosa (`elevation: 6`), destacado sobre el título de bienvenida.
+  - **Pantalla de Registro de Administrador (`register.tsx`):**
+    - Logo de 52x52 px con `borderRadius: 14` sobre el título "Crear Cuenta".
+  - **Pantalla de Carga y Verificación Inicial (`_layout.tsx`):**
+    - Logo de 80x80 px con `borderRadius: 22` y sombra destacada durante la comprobación de sesión.
+- **Verificación:**
+  - `npx tsc --noEmit` completado con 0 errores.
+  - Integración nativa mediante `expo-image` con escalado óptimo (`contentFit="contain"`).
+
 ---
 
 ## 📐 Resumen del Modelo de Datos Firestore

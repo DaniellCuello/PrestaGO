@@ -12,8 +12,8 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
+import { Image } from 'expo-image';
 import {
-  ShieldCheck,
   Mail,
   Lock,
   Eye,
@@ -100,14 +100,11 @@ export default function LoginScreen() {
 
           {/* Logo y Encabezado de Marca */}
           <View style={styles.brandHeader}>
-            <LinearGradient
-              colors={BrandColors.gradientPrimary}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.logoBadge}
-            >
-              <ShieldCheck size={36} color="#FFFFFF" />
-            </LinearGradient>
+            <Image
+              source={require('../../../assets/images/PrestaGo.png')}
+              style={styles.logoImage}
+              contentFit="contain"
+            />
             <Text style={[styles.appName, { color: theme.text }]}>
               Presta<Text style={{ color: BrandColors.primary }}>Go</Text>
             </Text>
@@ -308,16 +305,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 24,
   },
-  logoBadge: {
-    width: 70,
-    height: 70,
-    borderRadius: 22,
-    alignItems: 'center',
-    justifyContent: 'center',
+  logoImage: {
+    width: 76,
+    height: 76,
+    borderRadius: 20,
     marginBottom: 14,
     shadowColor: BrandColors.primary,
     shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.35,
     shadowRadius: 10,
     elevation: 6,
   },

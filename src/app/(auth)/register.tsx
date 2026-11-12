@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
+import { Image } from 'expo-image';
 import {
   ArrowLeft,
   User,
@@ -24,7 +25,6 @@ import {
   EyeOff,
   CheckCircle2,
   AlertCircle,
-  ShieldCheck,
 } from 'lucide-react-native';
 import { usePrestago } from '@/context/PrestagoContext';
 import { BrandColors, Colors, BorderRadius, Shadows, MaxContentWidth } from '@/constants/theme';
@@ -127,9 +127,11 @@ export default function RegisterScreen() {
           {/* Encabezado */}
           <View style={styles.header}>
             <View style={styles.badgeRow}>
-              <View style={[styles.iconCircle, { backgroundColor: BrandColors.primaryLight }]}>
-                <ShieldCheck size={26} color={BrandColors.primary} />
-              </View>
+              <Image
+                source={require('../../../assets/images/PrestaGo.png')}
+                style={styles.logoImage}
+                contentFit="contain"
+              />
             </View>
             <Text style={[styles.title, { color: theme.text }]}>Crear Cuenta</Text>
             <Text style={[styles.subtitle, { color: theme.textSecondary }]}>
@@ -462,12 +464,15 @@ const styles = StyleSheet.create({
   badgeRow: {
     marginBottom: 10,
   },
-  iconCircle: {
-    width: 48,
-    height: 48,
+  logoImage: {
+    width: 52,
+    height: 52,
     borderRadius: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
+    shadowColor: BrandColors.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 6,
+    elevation: 4,
   },
   title: {
     fontSize: 26,

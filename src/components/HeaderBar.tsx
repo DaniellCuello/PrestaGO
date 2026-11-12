@@ -1,9 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
+import { Image } from 'expo-image';
 import {
-  Wallet,
   Moon,
   Sun,
   ShieldCheck,
@@ -41,11 +40,11 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
         {/* Fila Principal */}
         <View style={styles.topRow}>
           <View style={styles.brandRow}>
-            <LinearGradient
-              colors={[BrandColors.primary, BrandColors.primaryDark]}
-              style={styles.logoBadge}>
-              <Wallet size={20} color="#FFFFFF" />
-            </LinearGradient>
+            <Image
+              source={require('../../assets/images/PrestaGo.png')}
+              style={styles.logoImage}
+              contentFit="contain"
+            />
             <View style={{ flexShrink: 1 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
                 <Text style={[styles.brandTitle, { color: theme.text }]}>
@@ -147,12 +146,10 @@ const styles = StyleSheet.create({
     flex: 1,
     marginRight: 12,
   },
-  logoBadge: {
+  logoImage: {
     width: 38,
     height: 38,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
+    borderRadius: 10,
   },
   brandTitle: {
     fontSize: 20,

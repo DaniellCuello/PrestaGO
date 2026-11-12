@@ -3,8 +3,7 @@ import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
-import { ShieldCheck } from 'lucide-react-native';
+import { Image } from 'expo-image';
 import { PrestagoProvider, usePrestago } from '@/context/PrestagoContext';
 import { BrandColors, Colors } from '@/constants/theme';
 
@@ -13,14 +12,11 @@ function AuthGuardLoader({ isDarkMode }: { isDarkMode: boolean }) {
 
   return (
     <View style={[styles.splashContainer, { backgroundColor: theme.background }]}>
-      <LinearGradient
-        colors={BrandColors.gradientPrimary}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.logoBadge}
-      >
-        <ShieldCheck size={40} color="#FFFFFF" />
-      </LinearGradient>
+      <Image
+        source={require('../../assets/images/PrestaGo.png')}
+        style={styles.logoImage}
+        contentFit="contain"
+      />
       <Text style={[styles.appName, { color: theme.text }]}>
         Presta<Text style={{ color: BrandColors.primary }}>Go</Text>
       </Text>
@@ -98,12 +94,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 24,
   },
-  logoBadge: {
+  logoImage: {
     width: 80,
     height: 80,
-    borderRadius: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
+    borderRadius: 22,
     marginBottom: 16,
     shadowColor: BrandColors.primary,
     shadowOffset: { width: 0, height: 8 },
