@@ -11,6 +11,7 @@ import {
   Modal,
   Linking,
   ActivityIndicator,
+  TextInput,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -31,15 +32,28 @@ import {
   FileText,
   ShieldCheck,
   ChevronRight,
+  Key,
+  Send,
+  Sparkles,
+  ExternalLink,
 } from 'lucide-react-native';
 import { usePrestago } from '@/context/PrestagoContext';
 import { BrandColors, Colors, BorderRadius, Shadows, MaxContentWidth } from '@/constants/theme';
 import { HeaderBar } from '@/components/HeaderBar';
 import { AdminModalEdit } from '@/components/AdminModalEdit';
+import {
+  getResendApiKey,
+  saveResendApiKey,
+  removeResendApiKey,
+  sendResumenCobrosHoy,
+  sendTestEmailToAdmin,
+} from '@/services/emailService';
+import { Cliente } from '@/types';
 
 export default function ProfileScreen() {
   const {
     admin,
+    clientes,
     isDarkMode,
     toggleTheme,
     metricas,
@@ -55,6 +69,11 @@ export default function ProfileScreen() {
   const [notificacionesCobro, setNotificacionesCobro] = useState(true);
   const [terminosModalVisible, setTerminosModalVisible] = useState(false);
   const [privacidadModalVisible, setPrivacidadModalVisible] = useState(false);
+  const [hasResendKey, setHasResendKey] = useState(false);
+  const [resendApiKey, setResendApiKey] = useState('');
+  const [resendModalVisible, setResendModalVisible] = useState(false);
+  const [apiKeyInput, setApiKeyInput] = useState('');
+  const [isSendingEmail, setIsSendingEmail] = useState(false);
 
   useEffect(() => {
     const cargarPreferenciaNotif = async () => {
@@ -67,7 +86,22 @@ export default function ProfileScreen() {
         console.warn('Error al cargar preferencia de notificaciones:', e);
       }
     };
+
+    const cargarResendKey = async () => {
+      try {
+        const key = await getResendApiKey();
+        if (key && key.trim().length > 0) {
+          setHasResendKey(true);
+          setResendApiKey(key);
+          setApiKeyInput(key);
+        }
+      } catch (e) {
+        console.warn('Error al cargar key de Resend:', e);
+      }
+    };
+
     cargarPreferenciaNotif();
+    cargarResendKey();
   }, []);
 
   const handleToggleNotificaciones = async (val: boolean) => {
@@ -166,6 +200,142 @@ export default function ProfileScreen() {
   const handleRestaurarFoto = async () => {
     await actualizarFotoAdmin('');
     setPhotoModalVisible(false);
+  };
+
+  // Guardar API Key de Resend
+  const handleGuardarKey = async () => {
+    const key = apiKeyInput.trim();
+    if (!key) {
+      Alert.alert('Campo Vacío', 'Por favor ingresa tu API Key de Resend.');
+      return;
+    }
+
+    if (!key.startsWith('re_')) {
+      Alert.alert(
+        'Clave Incompleta',
+        'La API Key de Resend debe comenzar con "re_". Verifica que la hayas copiado completa desde resend.com.'
+      );
+      return;
+    }
+
+    await saveResendApiKey(key);
+    setResendApiKey(key);
+    setHasResendKey(true);
+    setResendModalVisible(false);
+    Alert.alert(
+      '¡Servicio Conectado! 🚀',
+      'Tu clave de Resend ha sido guardada. Ahora puedes enviar resúmenes matutinos de cobro y recordatorios por correo.'
+    );
+  };
+
+  // Eliminar API Key de Resend
+  const handleEliminarKey = async () => {
+    await removeResendApiKey();
+    setResendApiKey('');
+    setApiKeyInput('');
+    setHasResendKey(false);
+    setResendModalVisible(false);
+    Alert.alert('Servicio Desconectado', 'Se ha eliminado la API Key de Resend.');
+  };
+
+  // Enviar Resumen Diario de Cobros de Hoy
+  const handleEnviarResumenCobros = async () => {
+    if (!hasResendKey) {
+      Alert.alert(
+        'Configuración Requerida',
+        'Primero debes vincular tu clave gratuita de Resend para activar el envío de correos.',
+        [
+          { text: 'Cancelar', style: 'cancel' },
+          { text: 'Configurar', onPress: () => setResendModalVisible(true) },
+        ]
+      );
+      return;
+    }
+
+    const hoy = new Date();
+    const anio = hoy.getFullYear();
+    const mes = String(hoy.getMonth() + 1).padStart(2, '0');
+    const dia = String(hoy.getDate()).padStart(2, '0');
+    const hoyStr = `${anio}-${mes}-${dia}`;
+
+    const clientesCobroHoy = clientes.filter(
+      (c) => c.proximoCobro === hoyStr && c.totalPendiente > 0
+    );
+
+    const ejecutarEnvio = async (lista: Cliente[]) => {
+      try {
+        setIsSendingEmail(true);
+        const destino = admin.email || 'denilsonpc30@gmail.com';
+        const res = await sendResumenCobrosHoy(destino, admin.nombres, lista);
+
+        if (res.success) {
+          Alert.alert(
+            '¡Reporte Enviado! 📬',
+            `Hemos enviado el resumen de ${lista.length} cuotas a ${destino}. Revisa tu bandeja de entrada.`
+          );
+        } else {
+          Alert.alert('Error al Enviar', res.error || 'No se pudo enviar el reporte.');
+        }
+      } catch (e: any) {
+        Alert.alert('Error', e.message || 'Ocurrió un error inesperado al enviar el reporte.');
+      } finally {
+        setIsSendingEmail(false);
+      }
+    };
+
+    if (clientesCobroHoy.length === 0) {
+      const activos = clientes.filter((c) => c.totalPendiente > 0);
+      if (activos.length === 0) {
+        Alert.alert('Sin Créditos Activos', 'No tienes clientes con saldos pendientes por cobrar.');
+        return;
+      }
+
+      Alert.alert(
+        'Cobros de Hoy',
+        `No hay cuotas con fecha exacta de cobro para hoy (${hoyStr}). ¿Deseas enviar el reporte ejecutivo con tus ${activos.length} clientes con saldos activos?`,
+        [
+          { text: 'Cancelar', style: 'cancel' },
+          { text: 'Enviar Reporte', onPress: () => ejecutarEnvio(activos) },
+        ]
+      );
+      return;
+    }
+
+    await ejecutarEnvio(clientesCobroHoy);
+  };
+
+  // Enviar Correo de Prueba
+  const handleEnviarCorreoPrueba = async () => {
+    if (!hasResendKey) {
+      Alert.alert(
+        'Configuración Requerida',
+        'Primero debes vincular tu clave gratuita de Resend para realizar pruebas.',
+        [
+          { text: 'Cancelar', style: 'cancel' },
+          { text: 'Configurar', onPress: () => setResendModalVisible(true) },
+        ]
+      );
+      return;
+    }
+
+    try {
+      setIsSendingEmail(true);
+      const destino = admin.email || 'denilsonpc30@gmail.com';
+      const res = await sendTestEmailToAdmin(destino, admin.nombres);
+
+      if (res.success) {
+        Alert.alert(
+          '¡Prueba Exitosa! ✉️',
+          `El correo oficial de prueba de PrestaGo ha sido enviado a ${destino}. Revisa tu bandeja de entrada o spam para ver el diseño.`
+        );
+      } else {
+        Alert.alert('Error en la Prueba', res.error || 'No se pudo completar el envío de prueba.');
+      }
+    } catch (e: any) {
+      Alert.alert('Error', e.message || 'Ocurrió un error inesperado.');
+    } finally {
+      setIsSendingEmail(false);
+    }
   };
 
   const handleCerrarSesion = () => {
@@ -442,6 +612,142 @@ export default function ProfileScreen() {
                 </Text>
                 <Text style={[styles.prefSub, { color: theme.textSecondary }]}>
                   Protección de datos personales (Habeas Data Ley 1581)
+                </Text>
+              </View>
+            </View>
+            <ChevronRight size={18} color={theme.textMuted} />
+          </Pressable>
+        </View>
+
+        {/* Sección: Servicio de Correos Electrónicos (Resend) */}
+        <View style={styles.sectionHeading}>
+          <Text style={[styles.headingText, { color: theme.textSecondary }]}>
+            Servicio de Correos Electrónicos (Resend)
+          </Text>
+        </View>
+
+        <View
+          style={[
+            styles.settingsGroup,
+            {
+              backgroundColor: theme.card,
+              borderColor: theme.border,
+            },
+            Shadows.sm,
+          ]}>
+          {/* Fila: Estado de Conexión Resend */}
+          <View style={styles.prefRow}>
+            <View style={styles.prefRowLeft}>
+              <View style={[styles.prefIconBox, { backgroundColor: isDarkMode ? '#132E21' : '#ECFDF5' }]}>
+                <Mail size={18} color={BrandColors.primary} />
+              </View>
+              <View style={styles.prefTextCol}>
+                <View style={styles.prefTitleWithBadge}>
+                  <Text style={[styles.prefTitle, { color: theme.text }]} numberOfLines={1}>
+                    Servicio Resend API
+                  </Text>
+                  <View
+                    style={[
+                      styles.prefStatusBadge,
+                      {
+                        backgroundColor: hasResendKey
+                          ? (isDarkMode ? '#132E21' : '#E8F8F0')
+                          : (isDarkMode ? '#3B2412' : '#FEF3C7'),
+                      },
+                    ]}>
+                    <Text
+                      style={[
+                        styles.prefStatusText,
+                        {
+                          color: hasResendKey ? BrandColors.primary : '#D97706',
+                        },
+                      ]}>
+                      {hasResendKey ? 'Conectado' : 'Pendiente'}
+                    </Text>
+                  </View>
+                </View>
+                <Text style={[styles.prefSub, { color: theme.textSecondary }]}>
+                  {hasResendKey
+                    ? `Envíos listos hacia ${admin.email || 'tu correo'}`
+                    : 'Vincula tu clave gratuita de resend.com'}
+                </Text>
+              </View>
+            </View>
+            <Pressable
+              onPress={() => {
+                setApiKeyInput(resendApiKey);
+                setResendModalVisible(true);
+              }}
+              style={[
+                styles.configKeyBtn,
+                {
+                  backgroundColor: hasResendKey
+                    ? (isDarkMode ? '#1E293B' : '#F1F5F9')
+                    : BrandColors.primary,
+                  borderColor: BrandColors.primary,
+                },
+              ]}>
+              <Key size={13} color={hasResendKey ? BrandColors.primary : '#FFFFFF'} />
+              <Text
+                style={[
+                  styles.configKeyBtnText,
+                  { color: hasResendKey ? BrandColors.primary : '#FFFFFF' },
+                ]}>
+                {hasResendKey ? 'Editar' : 'Activar'}
+              </Text>
+            </Pressable>
+          </View>
+
+          <View style={[styles.settingsDivider, { backgroundColor: theme.border }]} />
+
+          {/* Botón: Enviar Resumen de Cobros de Hoy */}
+          <Pressable
+            onPress={handleEnviarResumenCobros}
+            disabled={isSendingEmail}
+            style={({ pressed }) => [
+              styles.prefRow,
+              pressed && { opacity: 0.75 },
+            ]}>
+            <View style={styles.prefRowLeft}>
+              <View style={[styles.prefIconBox, { backgroundColor: isDarkMode ? '#1E293B' : '#F1F5F9' }]}>
+                {isSendingEmail ? (
+                  <ActivityIndicator size="small" color={BrandColors.primary} />
+                ) : (
+                  <Send size={16} color={BrandColors.primary} />
+                )}
+              </View>
+              <View style={styles.prefTextCol}>
+                <Text style={[styles.prefTitle, { color: theme.text }]}>
+                  Enviar Resumen de Cobros por Correo
+                </Text>
+                <Text style={[styles.prefSub, { color: theme.textSecondary }]}>
+                  Recibe en tu correo la lista de cuotas y montos a recaudar
+                </Text>
+              </View>
+            </View>
+            <ChevronRight size={18} color={theme.textMuted} />
+          </Pressable>
+
+          <View style={[styles.settingsDivider, { backgroundColor: theme.border }]} />
+
+          {/* Botón: Enviar Correo de Prueba */}
+          <Pressable
+            onPress={handleEnviarCorreoPrueba}
+            disabled={isSendingEmail}
+            style={({ pressed }) => [
+              styles.prefRow,
+              pressed && { opacity: 0.75 },
+            ]}>
+            <View style={styles.prefRowLeft}>
+              <View style={[styles.prefIconBox, { backgroundColor: isDarkMode ? '#1E293B' : '#F1F5F9' }]}>
+                <Sparkles size={16} color="#F59E0B" />
+              </View>
+              <View style={styles.prefTextCol}>
+                <Text style={[styles.prefTitle, { color: theme.text }]}>
+                  Enviar Correo de Prueba
+                </Text>
+                <Text style={[styles.prefSub, { color: theme.textSecondary }]}>
+                  Comprueba el diseño corporativo de PrestaGo en tu bandeja
                 </Text>
               </View>
             </View>
@@ -802,6 +1108,113 @@ export default function ProfileScreen() {
                 </LinearGradient>
               </Pressable>
             </ScrollView>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Modal: Configuración de API Key de Resend */}
+      <Modal
+        visible={resendModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setResendModalVisible(false)}>
+        <View style={styles.modalOverlay}>
+          <Pressable
+            style={StyleSheet.absoluteFill}
+            onPress={() => setResendModalVisible(false)}
+          />
+          <View
+            style={[
+              styles.resendModalSheet,
+              {
+                backgroundColor: theme.card,
+                borderColor: theme.border,
+              },
+              Shadows.lg,
+            ]}>
+            <View style={styles.modalHeader}>
+              <View style={{ flex: 1, marginRight: 8 }}>
+                <Text style={[styles.modalTitle, { color: theme.text }]}>
+                  Servicio de Correos Resend
+                </Text>
+                <Text style={[styles.modalSubtitle, { color: theme.textSecondary }]}>
+                  Envío de correos transaccionales y cobros
+                </Text>
+              </View>
+              <Pressable
+                onPress={() => setResendModalVisible(false)}
+                style={[
+                  styles.modalCloseBtn,
+                  { backgroundColor: isDarkMode ? '#1E2636' : '#F1F5F9' },
+                ]}>
+                <X size={18} color={theme.text} />
+              </Pressable>
+            </View>
+
+            <View style={styles.resendInstructionsBox}>
+              <Text style={[styles.resendInstructionsTitle, { color: BrandColors.primary }]}>
+                ¿Cómo obtener tu clave gratis? (3.000 emails/mes)
+              </Text>
+              <Text style={[styles.resendInstructionsStep, { color: theme.textSecondary }]}>
+                1. Abre tu cuenta gratuita en resend.com con Google o GitHub.
+              </Text>
+              <Text style={[styles.resendInstructionsStep, { color: theme.textSecondary }]}>
+                {'2. Ve al menú "API Keys" y pulsa "Create API Key".'}
+              </Text>
+              <Text style={[styles.resendInstructionsStep, { color: theme.textSecondary }]}>
+                {'3. Copia la clave que empieza por "re_" y pégala aquí abajo.'}
+              </Text>
+
+              <Pressable
+                onPress={() => Linking.openURL('https://resend.com/api-keys')}
+                style={styles.openResendLink}>
+                <Text style={styles.openResendLinkText}>Abrir Resend.com en navegador</Text>
+                <ExternalLink size={13} color={BrandColors.primary} />
+              </Pressable>
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={[styles.inputLabel, { color: theme.textSecondary }]}>
+                API Key de Resend:
+              </Text>
+              <TextInput
+                value={apiKeyInput}
+                onChangeText={setApiKeyInput}
+                placeholder="re_123456789abcdef..."
+                placeholderTextColor={theme.textMuted}
+                autoCapitalize="none"
+                autoCorrect={false}
+                style={[
+                  styles.resendInput,
+                  {
+                    backgroundColor: isDarkMode ? '#121722' : '#F8FAFC',
+                    borderColor: theme.border,
+                    color: theme.text,
+                  },
+                ]}
+              />
+            </View>
+
+            <View style={styles.resendBtnRow}>
+              {hasResendKey && (
+                <Pressable
+                  onPress={handleEliminarKey}
+                  style={styles.deleteKeyBtn}>
+                  <Trash2 size={16} color="#EF4444" />
+                  <Text style={styles.deleteKeyBtnText}>Desconectar</Text>
+                </Pressable>
+              )}
+
+              <Pressable
+                onPress={handleGuardarKey}
+                style={[styles.saveKeyBtn, Shadows.glowGreen, { flex: 1 }]}>
+                <LinearGradient
+                  colors={[BrandColors.primary, BrandColors.primaryDark]}
+                  style={styles.saveKeyGradient}>
+                  <Text style={styles.saveKeyBtnText}>Guardar Clave</Text>
+                </LinearGradient>
+              </Pressable>
+            </View>
           </View>
         </View>
       </Modal>
@@ -1192,6 +1605,108 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   legalConfirmText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '800',
+  },
+  configKeyBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: BorderRadius.lg,
+    borderWidth: 1,
+  },
+  configKeyBtnText: {
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  resendModalSheet: {
+    borderRadius: BorderRadius['2xl'],
+    borderWidth: 1,
+    padding: 22,
+    maxWidth: 520,
+    width: '92%',
+    alignSelf: 'center',
+  },
+  resendInstructionsBox: {
+    backgroundColor: 'rgba(26, 169, 101, 0.08)',
+    borderRadius: BorderRadius.lg,
+    padding: 14,
+    marginBottom: 16,
+    borderLeftWidth: 3,
+    borderLeftColor: BrandColors.primary,
+  },
+  resendInstructionsTitle: {
+    fontSize: 13,
+    fontWeight: '800',
+    marginBottom: 6,
+  },
+  resendInstructionsStep: {
+    fontSize: 12,
+    lineHeight: 18,
+    marginBottom: 3,
+  },
+  openResendLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    marginTop: 8,
+    alignSelf: 'flex-start',
+  },
+  openResendLinkText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: BrandColors.primary,
+    textDecorationLine: 'underline',
+  },
+  inputGroup: {
+    marginBottom: 18,
+  },
+  inputLabel: {
+    fontSize: 12,
+    fontWeight: '700',
+    marginBottom: 6,
+    textTransform: 'uppercase',
+  },
+  resendInput: {
+    fontSize: 13,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    borderRadius: BorderRadius.lg,
+    borderWidth: 1,
+    fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace',
+  },
+  resendBtnRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  deleteKeyBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 14,
+    paddingVertical: 13,
+    borderRadius: BorderRadius.xl,
+    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+  },
+  deleteKeyBtnText: {
+    color: '#EF4444',
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  saveKeyBtn: {
+    borderRadius: BorderRadius.xl,
+    overflow: 'hidden',
+  },
+  saveKeyGradient: {
+    paddingVertical: 13,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  saveKeyBtnText: {
     color: '#FFFFFF',
     fontSize: 14,
     fontWeight: '800',

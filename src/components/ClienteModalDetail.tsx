@@ -12,6 +12,7 @@ import {
   Alert,
   KeyboardAvoidingView,
   Keyboard,
+  ActivityIndicator,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -27,6 +28,8 @@ import {
   Edit3,
   Trash2,
   Share2,
+  Mail,
+  Send,
 } from 'lucide-react-native';
 import { Cliente, HistorialPago, TipoPago } from '@/types';
 import { Colors, BrandColors, BorderRadius, Shadows } from '@/constants/theme';
@@ -37,6 +40,11 @@ import {
   getInfoEstadoMora,
   PLAZO_INDEFINIDO_CUOTAS,
 } from '@/utils/finance';
+import {
+  getResendApiKey,
+  sendEmailWithResend,
+  generateRecordatorioCuotaClienteHtml,
+} from '@/services/emailService';
 import { ClienteModalEdit } from './ClienteModalEdit';
 
 interface ClienteModalDetailProps {
@@ -124,6 +132,69 @@ const ClienteModalDetailContent: React.FC<ClienteModalContentProps> = ({
       : 'Cuota';
 
   const proyeccion = aplicarAbonoACliente(cliente, parsedMonto, subtipoSimulado);
+
+  const [enviandoEmail, setEnviandoEmail] = useState(false);
+
+  const handleEnviarRecordatorioEmail = async () => {
+    const apiKey = await getResendApiKey();
+    if (!apiKey) {
+      Alert.alert(
+        'Resend no configurado',
+        'Para enviar recordatorios oficiales por correo necesitas configurar tu API Key gratuita de Resend.\n\nVe a la pestaña "Perfil" y toca en "Configurar API Key".'
+      );
+      return;
+    }
+
+    const ejecutarEnvio = async (destinatario: string) => {
+      try {
+        setEnviandoEmail(true);
+        const html = generateRecordatorioCuotaClienteHtml({
+          cliente,
+          negocio: 'PrestaGo | Control Financiero',
+        });
+
+        const res = await sendEmailWithResend({
+          to: destinatario,
+          subject: `💳 Recordatorio de Cuota - PrestaGo (${cliente.nombre})`,
+          html,
+        });
+
+        if (res.success) {
+          Alert.alert(
+            '¡Correo Enviado! ✉️',
+            `Se envió exitosamente el recordatorio de cuota a ${destinatario}.`
+          );
+        } else {
+          Alert.alert('Error al enviar correo', res.error || 'No se pudo enviar el correo.');
+        }
+      } catch (e: any) {
+        Alert.alert('Error', e.message || 'Error inesperado al enviar el correo.');
+      } finally {
+        setEnviandoEmail(false);
+      }
+    };
+
+    if (!cliente.email?.trim()) {
+      Alert.alert(
+        'Sin correo registrado',
+        `El cliente ${cliente.nombre} aún no tiene un correo electrónico en su ficha.\n\n¿Deseas editar sus datos para agregarlo, o enviar una copia de prueba a tu correo de administrador?`,
+        [
+          { text: 'Cancelar', style: 'cancel' },
+          {
+            text: 'Editar Cliente',
+            onPress: () => setShowEditModal(true),
+          },
+          {
+            text: 'Enviar a mi correo',
+            onPress: () => ejecutarEnvio('denilsonpc30@gmail.com'),
+          },
+        ]
+      );
+      return;
+    }
+
+    ejecutarEnvio(cliente.email.trim());
+  };
 
   const handleLlamar = () => {
     const tel = cliente.celular.replace(/\s+/g, '');
@@ -326,6 +397,11 @@ const ClienteModalDetailContent: React.FC<ClienteModalContentProps> = ({
                     <Text style={[styles.phoneText, { color: theme.textSecondary }]}>
                       {cliente.celular}
                     </Text>
+                    {cliente.email ? (
+                      <Text style={[styles.phoneText, { color: theme.textMuted }]}>
+                        {' '}· {cliente.email}
+                      </Text>
+                    ) : null}
                   </View>
                 </View>
               </View>
@@ -377,6 +453,54 @@ const ClienteModalDetailContent: React.FC<ClienteModalContentProps> = ({
                 </View>
                 <Share2 size={16} color="#FFFFFF" />
               </LinearGradient>
+            </Pressable>
+
+            {/* Botón Destacado: Enviar Recordatorio por Correo (Resend) */}
+            <Pressable
+              onPress={handleEnviarRecordatorioEmail}
+              disabled={enviandoEmail}
+              style={({ pressed }) => [
+                styles.emailReminderBtn,
+                {
+                  opacity: pressed || enviandoEmail ? 0.85 : 1,
+                  backgroundColor: isDarkMode ? '#132338' : '#EFF6FF',
+                  borderColor: isDarkMode ? '#1D4ED8' : '#BFDBFE',
+                },
+                Shadows.sm,
+              ]}>
+              <View style={styles.emailReminderContent}>
+                <View
+                  style={[
+                    styles.emailIconBox,
+                    { backgroundColor: isDarkMode ? '#1E3A8A' : '#DBEAFE' },
+                  ]}>
+                  {enviandoEmail ? (
+                    <ActivityIndicator size="small" color="#2563EB" />
+                  ) : (
+                    <Mail size={18} color="#2563EB" />
+                  )}
+                </View>
+                <View style={{ flex: 1, marginLeft: 10 }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                    <Text
+                      style={[
+                        styles.emailReminderTitle,
+                        { color: isDarkMode ? '#93C5FD' : '#1E40AF' },
+                      ]}>
+                      Enviar Recordatorio por Correo
+                    </Text>
+                    <View style={styles.resendBadge}>
+                      <Text style={styles.resendBadgeText}>RESEND</Text>
+                    </View>
+                  </View>
+                  <Text style={[styles.emailReminderSub, { color: theme.textSecondary }]}>
+                    {cliente.email
+                      ? `Destino: ${cliente.email}`
+                      : 'Enviar estado al correo del cliente o admin'}
+                  </Text>
+                </View>
+                <Send size={16} color={isDarkMode ? '#60A5FA' : '#2563EB'} />
+              </View>
             </Pressable>
 
             {/* Semáforo y Estado de Mora */}
@@ -987,6 +1111,43 @@ const styles = StyleSheet.create({
     color: 'rgba(255, 255, 255, 0.85)',
     fontSize: 11,
     marginTop: 1,
+  },
+  emailReminderBtn: {
+    borderRadius: BorderRadius.xl,
+    borderWidth: 1,
+    padding: 12,
+    marginBottom: 16,
+  },
+  emailReminderContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  emailIconBox: {
+    width: 38,
+    height: 38,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emailReminderTitle: {
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  emailReminderSub: {
+    fontSize: 11,
+    marginTop: 2,
+  },
+  resendBadge: {
+    backgroundColor: '#2563EB',
+    paddingHorizontal: 5,
+    paddingVertical: 1,
+    borderRadius: 4,
+  },
+  resendBadgeText: {
+    color: '#FFFFFF',
+    fontSize: 8,
+    fontWeight: '800',
+    letterSpacing: 0.5,
   },
   scrollContent: {
     padding: 20,

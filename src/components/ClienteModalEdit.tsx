@@ -29,6 +29,7 @@ import {
   BookUser,
   Navigation,
   Crosshair,
+  Mail,
 } from 'lucide-react-native';
 import { Cliente, ModalidadCredito } from '@/types';
 import { BrandColors, Colors, BorderRadius, Shadows } from '@/constants/theme';
@@ -74,6 +75,7 @@ const ClienteModalEditContent: React.FC<EditContentProps> = ({
   const [nombre, setNombre] = useState(cliente.nombre);
   const [documento, setDocumento] = useState(cliente.documento);
   const [celular, setCelular] = useState(cliente.celular);
+  const [email, setEmail] = useState(cliente.email || '');
   const [ubicacion, setUbicacion] = useState(cliente.ubicacion);
   const [coordenadas, setCoordenadas] = useState<{ lat: number; lng: number } | undefined>(
     cliente.coordenadas
@@ -151,6 +153,7 @@ const ClienteModalEditContent: React.FC<EditContentProps> = ({
       nombre: nombre.trim(),
       documento: documento.trim(),
       celular: normalizarCelularColombia(celular) || celular.trim(),
+      email: email.trim() || undefined,
       ubicacion: ubicacion.trim() || 'Colombia',
       coordenadas,
       direccionDetalle,
@@ -296,6 +299,32 @@ const ClienteModalEditContent: React.FC<EditContentProps> = ({
                   <BookUser size={18} color={BrandColors.primary} />
                 </Pressable>
               </View>
+            </View>
+          </View>
+
+          {/* Correo Electrónico (Opcional - para notificaciones y recordatorios) */}
+          <View style={styles.fieldGroup}>
+            <Text style={[styles.fieldLabel, { color: theme.textSecondary }]}>
+              Correo Electrónico (Opcional · Para recordatorios Resend)
+            </Text>
+            <View
+              style={[
+                styles.inputWrapper,
+                {
+                  backgroundColor: isDarkMode ? '#131A24' : '#F8FAFC',
+                  borderColor: theme.border,
+                },
+              ]}>
+              <Mail size={18} color={BrandColors.primary} />
+              <TextInput
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                placeholder="cliente@ejemplo.com"
+                placeholderTextColor={theme.textMuted}
+                style={[styles.input, { color: theme.text }]}
+              />
             </View>
           </View>
 

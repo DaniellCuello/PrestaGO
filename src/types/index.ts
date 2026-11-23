@@ -24,6 +24,7 @@ export interface Cliente {
   nombre: string;
   documento: string;
   celular: string;
+  email?: string;
   ubicacion: string;
   coordenadas?: { lat: number; lng: number };
   direccionDetalle?: string;

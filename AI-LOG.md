@@ -139,6 +139,34 @@
   - `npx tsc --noEmit` completado con 0 errores.
   - Integración nativa mediante `expo-image` con escalado óptimo (`contentFit="contain"`).
 
+### [Hito 10] — Integración de Servicio de Correos Transaccionales (Resend) y Notificaciones de Cuotas
+- **Objetivo:** Superar la restricción técnica de Firebase (donde Google bloquea la edición de plantillas de correo en dominios gratuitos por medidas anti-phishing) integrando el servicio transaccional gratuito de **Resend** (3.000 emails/mes) para emitir resúmenes diarios de cobro y recordatorios de cuota estilizados con la identidad visual de PrestaGo.
+- **Servicio Transaccional Modular (`src/services/emailService.ts`):**
+  - Implementación con la API REST de Resend (`https://api.resend.com/emails`).
+  - Almacenamiento seguro de la API Key en `AsyncStorage` (`@prestago_resend_api_key`) con fallback a `process.env.EXPO_PUBLIC_RESEND_API_KEY`.
+  - Configuración flexible de remitente (`PrestaGo <onboarding@resend.dev>` o dominio verificado).
+  - Funciones de generación HTML responsivas:
+    - `generateResumenDiarioCobrosHtml`: Reporte matutino ejecutivo con métricas de cobro del día, lista de clientes que vencen hoy, montos en COP y enlaces directos a WhatsApp.
+    - `generateRecordatorioCuotaClienteHtml`: Estado de cuenta formal para el cliente con valor de la cuota, fecha de vencimiento, saldo total y recomendaciones.
+    - `generateTestEmailHtml`: Correo de verificación de conectividad y estado operativo.
+  - Despachadores `sendResumenCobrosHoy`, `sendTestEmailToAdmin` y `sendEmailWithResend`.
+- **Gestión de Configuración en Pantalla Perfil (`src/app/(tabs)/profile.tsx`):**
+  - Tarjeta interactiva **"Servicio de Correos Electrónicos (Resend)"** con badge de estado (Conectado / Sin Configurar).
+  - Modal `ResendConfigModal` con tutorial paso a paso para obtener la clave gratuita en `resend.com/api-keys`, botón de enlace directo al navegador, guardado y eliminación de la clave.
+  - Botón **"Enviar Correo de Prueba"** para validar de inmediato la entrega en la bandeja de entrada.
+  - Botón **"Enviar Resumen de Cobros de Hoy"** para generar y recibir el balance consolidado del día.
+- **Recordatorios en la Ficha del Cliente (`src/components/ClienteModalDetail.tsx`):**
+  - Botón destacado **"Enviar Recordatorio por Correo"** con badge de `RESEND` e indicador de carga.
+  - Flujo inteligente: si el cliente no tiene correo registrado, permite enviar una copia de supervisión al administrador o abrir de inmediato la edición del cliente para registrar su correo.
+  - Visualización del correo en el encabezado de identidad del cliente.
+- **Extensión del Modelo de Datos y Formularios:**
+  - Campo opcional `email?: string;` añadido a la interfaz `Cliente` en `src/types/index.ts`.
+  - Campo editable de correo con icono `Mail` añadido en `ClienteModalEdit.tsx`.
+  - Campo de correo en la pantalla de nuevo préstamo / cliente (`new-client.tsx`).
+- **Verificación Técnica:**
+  - `npx tsc --noEmit`: 0 errores de compilación.
+  - `npx eslint`: 0 errores en todos los componentes modificados.
+
 ---
 
 ## 📐 Resumen del Modelo de Datos Firestore

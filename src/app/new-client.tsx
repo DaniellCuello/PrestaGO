@@ -29,6 +29,7 @@ import {
   BookUser,
   Navigation,
   Crosshair,
+  Mail,
 } from 'lucide-react-native';
 import { usePrestago } from '@/context/PrestagoContext';
 import { ModalidadCredito } from '@/types';
@@ -64,6 +65,7 @@ export default function NewClientScreen() {
   const [nombre, setNombre] = useState<string>(clienteARenovar?.nombre || '');
   const [documento, setDocumento] = useState<string>(clienteARenovar?.documento || '');
   const [celular, setCelular] = useState<string>(clienteARenovar?.celular || '');
+  const [email, setEmail] = useState<string>(clienteARenovar?.email || '');
   const [ubicacion, setUbicacion] = useState<string>(clienteARenovar?.ubicacion || 'Medellín');
 
   // Estados para Contactos y Ubicación GPS
@@ -190,6 +192,7 @@ export default function NewClientScreen() {
       nombre: nombre.trim(),
       documento: documento.trim(),
       celular: celular.trim(),
+      email: email.trim() || undefined,
       ubicacion: ubicacion.trim(),
       coordenadas,
       direccionDetalle,
@@ -394,6 +397,32 @@ export default function NewClientScreen() {
                   <BookUser size={18} color={BrandColors.primary} />
                 </Pressable>
               </View>
+            </View>
+          </View>
+
+          {/* Correo Electrónico (Opcional - Notificaciones y Recordatorios) */}
+          <View style={styles.inputGroup}>
+            <Text style={[styles.label, { color: theme.textSecondary }]}>
+              Correo Electrónico (Opcional · Recordatorios Resend):
+            </Text>
+            <View
+              style={[
+                styles.inputWrapper,
+                {
+                  backgroundColor: theme.card,
+                  borderColor: theme.border,
+                },
+              ]}>
+              <Mail size={18} color={BrandColors.primary} />
+              <TextInput
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                placeholder="cliente@ejemplo.com"
+                placeholderTextColor={theme.textMuted}
+                style={[styles.input, { color: theme.text }]}
+              />
             </View>
           </View>
 
