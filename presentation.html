@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PrestaGo — Presentación Oficial de la Aplicación</title>
+  <style>
+    :root {
+      --primary: #1AA965;
+      --primary-dark: #0D6839;
+      --primary-light: #2EE28B;
+      --bg: #090D16;
+      --card-bg: rgba(18, 25, 38, 0.85);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --text: #F8FAFC;
+      --text-muted: #94A3B8;
+      --accent-blue: #3B82F6;
+      --accent-purple: #8B5CF6;
+      --accent-yellow: #F59E0B;
+      --accent-orange: #F97316;
+      --accent-red: #EF4444;
+      --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    body {
+      font-family: var(--font);
+      background-color: var(--bg);
+      color: var(--text);
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* BARRA SUPERIOR DE PROGRESO Y CONTROLES */
+    .top-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      background: rgba(9, 13, 22, 0.8);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--card-border);
+      z-index: 100;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-img {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      box-shadow: 0 0 16px rgba(26, 169, 101, 0.4);
+    }
+
+    .brand-title {
+      font-size: 19px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+
+    .brand-title span {
+      color: var(--primary);
+    }
+
+    .brand-badge {
+      font-size: 10px;
+      font-weight: 800;
+      padding: 3px 8px;
+      background: rgba(26, 169, 101, 0.18);
+      color: var(--primary-light);
+      border: 1px solid rgba(26, 169, 101, 0.4);
+      border-radius: 20px;
+      letter-spacing: 0.5px;
+    }
+
+    .nav-controls {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .slide-counter {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-muted);
+      letter-spacing: 1px;
+    }
+
+    .btn-nav {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--card-border);
+      color: var(--text);
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-nav:hover {
+      background: rgba(26, 169, 101, 0.2);
+      border-color: var(--primary);
+      color: #FFF;
+      transform: translateY(-1px);
+    }
+
+    .progress-line {
+      position: fixed;
+      top: 64px;
+      left: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--primary), var(--accent-blue));
+      width: 0%;
+      transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 101;
+      box-shadow: 0 0 10px var(--primary);
+    }
+
+    /* CONTENEDOR PRINCIPAL DE DIAPOSITIVAS */
+    .deck-container {
+      flex: 1;
+      margin-top: 64px;
+      position: relative;
+      overflow: hidden;
+      width: 100%;
+      height: calc(100vh - 64px);
+    }
+
+    .slide {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      padding: 40px 60px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateX(40px) scale(0.98);
+      transition: all 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+      overflow-y: auto;
+    }
+
+    .slide.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateX(0) scale(1);
+    }
+
+    /* ESTILOS COMUNES DE SLIDE */
+    .slide-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--primary-light);
+      background: rgba(26, 169, 101, 0.12);
+      padding: 4px 12px;
+      border-radius: 20px;
+      border: 1px solid rgba(26, 169, 101, 0.3);
+      width: fit-content;
+      margin-bottom: 12px;
+    }
+
+    .slide-title {
+      font-size: 38px;
+      font-weight: 900;
+      letter-spacing: -1px;
+      line-height: 1.15;
+      margin-bottom: 8px;
+    }
+
+    .slide-subtitle {
+      font-size: 17px;
+      color: var(--text-muted);
+      margin-bottom: 32px;
+      max-width: 850px;
+      line-height: 1.45;
+    }
+
+    /* GRID DE TARJETAS INFORMATIVAS */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      width: 100%;
+      max-width: 1200px;
+    }
+
+    .info-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 24px;
+      backdrop-filter: blur(12px);
+      transition: all 0.25s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .info-card:hover {
+      border-color: rgba(26, 169, 101, 0.4);
+      transform: translateY(-3px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+    }
+
+    .info-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: var(--primary);
+      opacity: 0.8;
+    }
+
+    .card-header-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      margin-bottom: 14px;
+    }
+
+    .card-title {
+      font-size: 17px;
+      font-weight: 800;
+      margin-bottom: 8px;
+      color: #FFF;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .card-text {
+      font-size: 13.5px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .card-badge-pill {
+      font-size: 10px;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: 6px;
+      text-transform: uppercase;
+    }
+
+    /* SLIDE 1: PORTADA HERO */
+    .hero-layout {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 60px;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .hero-text {
+      flex: 1.2;
+    }
+
+    .hero-visual {
+      flex: 0.8;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .hero-logo-box {
+      width: 150px;
+      height: 150px;
+      border-radius: 36px;
+      background: radial-gradient(circle, rgba(26, 169, 101, 0.25) 0%, rgba(9, 13, 22, 0.8) 70%);
+      border: 1px solid rgba(26, 169, 101, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 50px rgba(26, 169, 101, 0.35);
+      animation: floatLogo 4s ease-in-out infinite alternate;
+    }
+
+    @keyframes floatLogo {
+      0% { transform: translateY(0px) rotate(0deg); }
+      100% { transform: translateY(-10px) rotate(1deg); }
+    }
+
+    .hero-logo-box img {
+      width: 110px;
+      height: 110px;
+      border-radius: 24px;
+    }
+
+    .tech-pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 24px;
+    }
+
+    .tech-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--card-border);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #E2E8F0;
+    }
+
+    /* MOCKUP DE TELÉFONO INTEGRADO */
+    .phone-mockup {
+      width: 290px;
+      height: 520px;
+      background: #000;
+      border-radius: 40px;
+      border: 6px solid #2D3748;
+      padding: 12px;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.7), 0 0 30px rgba(26, 169, 101, 0.2);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .phone-screen {
+      flex: 1;
+      background: #0B0F17;
+      border-radius: 30px;
+      overflow: hidden;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .mock-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .mock-card {
+      background: #141C2B;
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    /* FÓRMULA DESTACADA */
+    .formula-box {
+      background: linear-gradient(135deg, rgba(26, 169, 101, 0.12) 0%, rgba(13, 104, 57, 0.2) 100%);
+      border: 1px solid rgba(26, 169, 101, 0.35);
+      border-radius: 14px;
+      padding: 16px 20px;
+      margin-top: 14px;
+    }
+
+    .formula-title {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--primary-light);
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .formula-text {
+      font-size: 12.5px;
+      color: #E2E8F0;
+      line-height: 1.45;
+    }
+
+    /* BARRA INFERIOR DE ACCIONES RÁPIDAS */
+    .bottom-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 52px;
+      background: rgba(9, 13, 22, 0.9);
+      backdrop-filter: blur(12px);
+      border-top: 1px solid var(--card-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      font-size: 12px;
+      color: var(--text-muted);
+      z-index: 100;
+    }
+
+    .key-hints {
+      display: flex;
+      gap: 14px;
+    }
+
+    .key-badge {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: #FFF;
+      font-weight: 700;
+      font-family: monospace;
+    }
+
+    /* PASOS DE INSTALACIÓN TERMINAL */
+    .terminal-box {
+      background: #080C14;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 16px 20px;
+      font-family: 'Fira Code', 'Courier New', monospace;
+      font-size: 13px;
+      color: #38BDF8;
+      line-height: 1.7;
+      margin-top: 12px;
+      box-shadow: inset 0 2px 8px rgba(0,0,0,0.6);
+    }
+
+    .terminal-cmd {
+      color: #4ADE80;
+      font-weight: 700;
+    }
+
+    .terminal-comment {
+      color: #64748B;
+      font-style: italic;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 900px) {
+      .hero-layout { flex-direction: column; text-align: center; gap: 30px; }
+      .phone-mockup { display: none; }
+      .slide { padding: 24px; }
+      .slide-title { font-size: 28px; }
+      .top-bar { padding: 0 16px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- BARRA SUPERIOR CON MARCA, NAVEGACIÓN Y PROGRESO -->
+  <header class="top-bar">
+    <div class="brand-group">
+      <img src="assets/images/PrestaGo.png" alt="Logo PrestaGo" class="logo-img" onerror="this.src='https://via.placeholder.com/38/1AA965/FFFFFF?text=GO'">
+      <div>
+        <div class="brand-title">Presta<span>Go</span></div>
+      </div>
+      <span class="brand-badge">PRO v1.1.2</span>
+    </div>
+
+    <div class="nav-controls">
+      <span class="slide-counter" id="slideIndicator">01 / 10</span>
+      <button class="btn-nav" onclick="prevSlide()" title="Anterior (Flecha Izquierda)">
+        ◀ Anterior
+      </button>
+      <button class="btn-nav" onclick="nextSlide()" title="Siguiente (Flecha Derecha / Espacio)" style="background: var(--primary); border-color: var(--primary); color: #FFF;">
+        Siguiente ▶
+      </button>
+      <button class="btn-nav" onclick="toggleFullScreen()" title="Pantalla Completa (F)">
+        ⛶
+      </button>
+    </div>
+  </header>
+
+  <div class="progress-line" id="progressBar"></div>
+
+  <!-- CONTENEDOR DE TODAS LAS DIAPOSITIVAS -->
+  <main class="deck-container">
+
+    <!-- SLIDE 1: PORTADA & VISIÓN GENERAL -->
+    <section class="slide active" id="slide-1">
+      <div class="hero-layout">
+        <div class="hero-text">
+          <div class="slide-tag">✨ PITCH DECK & ARQUITECTURA</div>
+          <h1 class="slide-title">Presta<span style="color: var(--primary);">Go</span> Mobile</h1>
+          <p class="slide-subtitle">
+            Sistema móvil integral para <strong>administración de microcréditos, cobranza en ruta, análisis de rentabilidad y asistente financiero con Inteligencia Artificial</strong>.
+          </p>
+
+          <div class="cards-grid" style="grid-template-columns: 1fr 1fr; margin-bottom: 24px;">
+            <div class="info-card" style="padding: 16px;">
+              <div class="card-title" style="font-size: 15px;">🎯 Objetivo Central</div>
+              <div class="card-text">Eliminar cuadernos y hojas de cálculo, automatizando cobros, semáforos de mora y balances en vivo.</div>
+            </div>
+            <div class="info-card" style="padding: 16px;">
+              <div class="card-title" style="font-size: 15px;">⚡ Experiencia 100% Nativa</div>
+              <div class="card-text">Diseñada para operar en la calle con un solo toque: llamadas, WhatsApp pre-redactado, GPS y notas de voz.</div>
+            </div>
+          </div>
+
+          <div class="tech-pill-row">
+            <span class="tech-pill">📱 React Native 0.88</span>
+            <span class="tech-pill">🚀 Expo Go SDK 58</span>
+            <span class="tech-pill">🔥 Firebase Firestore</span>
+            <span class="tech-pill">🎙️ expo-audio (Voz IA)</span>
+            <span class="tech-pill">✉️ Resend API</span>
+            <span class="tech-pill">🎨 Material 3</span>
+          </div>
+        </div>
+
+        <div class="hero-visual">
+          <div class="hero-logo-box">
+            <img src="assets/images/PrestaGo.png" alt="PrestaGo Moneda Dorada" onerror="this.src='https://via.placeholder.com/110/1AA965/FFFFFF?text=$GO'">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 2: EL PROBLEMA Y LA SOLUCIÓN (¿PARA QUÉ Y CUÁNDO?) -->
+    <section class="slide" id="slide-2">
+      <div class="slide-tag">🎯 PROPÓSITO & MODELO DE NEGOCIO</div>
+      <h2 class="slide-title">¿Para qué existe PrestaGo y Cuándo se usa?</h2>
+      <p class="slide-subtitle">Transforma la cobranza informal en un negocio ordenado, rentable y transparente.</p>
+
+      <div class="cards-grid">
+        <div class="info-card" style="border-left: 4px solid var(--accent-red);">
+          <div class="card-header-icon" style="background: rgba(239, 68, 68, 0.15); color: var(--accent-red);">❌</div>
+          <div class="card-title">El Problema Tradicional</div>
+          <div class="card-text">
+            • Cuadernos físicos que se dañan o pierden.<br>
+            • Errores manuales en el cálculo de intereses.<br>
+            • Moras ocultas que pasan desapercibidas por semanas.<br>
+            • Pérdida de tiempo redactando cobros por WhatsApp.
+          </div>
+        </div>
+
+        <div class="info-card" style="border-left: 4px solid var(--primary);">
+          <div class="card-header-icon" style="background: rgba(26, 169, 101, 0.15); color: var(--primary);">✅</div>
+          <div class="card-title">La Solución PrestaGo</div>
+          <div class="card-text">
+            • <strong>Semáforo de Moras en vivo:</strong> Verde, Amarillo, Naranja y Rojo.<br>
+            • <strong>Cálculo Automático:</strong> Cuotas y proyecciones exactas.<br>
+            • <strong>Cobros 1-Touch:</strong> Mensajes y estados de cuenta automáticos.<br>
+            • <strong>Sincronización en la Nube:</strong> Respaldo seguro 24/7.
+          </div>
+        </div>
+
+        <div class="info-card" style="border-left: 4px solid var(--accent-blue);">
+          <div class="card-header-icon" style="background: rgba(59, 130, 246, 0.15); color: var(--accent-blue);">⏰</div>
+          <div class="card-title">¿Cuándo se utiliza?</div>
+          <div class="card-text">
+            • <strong>En la mañana:</strong> Revisión del Calendario y reporte diario de cobros.<br>
+            • <strong>Durante el día:</strong> Cobranza en ruta y registro instantáneo de abonos.<br>
+            • <strong>Al prestar:</strong> Cotización y validación con la Calculadora Rápida.<br>
+            • <strong>En la noche:</strong> Balance de rentabilidad y consulta con la IA.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 3: STACK TECNOLÓGICO Y ARQUITECTURA -->
+    <section class="slide" id="slide-3">
+      <div class="slide-tag">🛠️ ARQUITECTURA & DESARROLLO</div>
+      <h2 class="slide-title">¿Cómo se desarrolla y qué herramientas utiliza?</h2>
+      <p class="slide-subtitle">Construido con las tecnologías más modernas del ecosistema móvil moderno.</p>
+
+      <div class="cards-grid">
+        <div class="info-card">
+          <div class="card-header-icon" style="background: rgba(97, 218, 251, 0.15); color: #61DAFB;">⚛️</div>
+          <div class="card-title">React Native 0.88 & Expo SDK 58</div>
+          <div class="card-text">
+            Desarrollo nativo multiplataforma (iOS y Android). Permite ejecución inmediata en Expo Go sin compilar Android Studio ni Xcode localmente.
+          </div>
+        </div>
+
+        <div class="info-card">
+          <div class="card-header-icon" style="background: rgba(255, 202, 40, 0.15); color: #FFCA28;">🔥</div>
+          <div class="card-title">Firebase Cloud Firestore</div>
+          <div class="card-text">
+            Base de datos NoSQL en la nube con escucha en tiempo real (`onSnapshot`), compatible 100% con la base de datos Android Studio/Flutter existente.
+          </div>
+        </div>
+
+        <div class="info-card">
+          <div class="card-header-icon" style="background: rgba(49, 120, 198, 0.15); color: #3178C6;">📘</div>
+          <div class="card-title">TypeScript 6.0 Estricto</div>
+          <div class="card-text">
+            Tipado robusto para modelos financieros (`Cliente`, `HistorialPago`, `MetricasGlobales`) garantizando 0 errores en tiempo de ejecución.
+          </div>
+        </div>
+
+        <div class="info-card">
+          <div class="card-header-icon" style="background: rgba(37, 99, 235, 0.15); color: #2563EB;">✉️</div>
+          <div class="card-title">Servicio Transaccional Resend</div>
+          <div class="card-text">
+            API REST para emisión de correos HTML corporativos con 3.000 emails mensuales gratuitos, superando las restricciones de dominios de Google.
+          </div>
+        </div>
+
+        <div class="info-card">
+          <div class="card-header-icon" style="background: rgba(239, 68, 68, 0.15); color: #EF4444;">🎙️</div>
+          <div class="card-title">expo-audio & Sensores</div>
+          <div class="card-text">
+            Grabación de notas de voz en tiempo real, importación de contactos (`expo-contacts`) y selección de coordenadas GPS (`expo-location`).
+          </div>
+        </div>
+
+        <div class="info-card">
+          <div class="card-header-icon" style="background: rgba(139, 92, 246, 0.15); color: #8B5CF6;">📁</div>
+          <div class="card-title">Expo Router v58</div>
+          <div class="card-text">
+            Enrutamiento moderno basado en archivos (`src/app/(tabs)`, `src/app/(auth)`), soporte de layouts anidados, tabs y transiciones fluidas.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 4: INSTALACIÓN Y PUESTA EN MARCHA -->
+    <section class="slide" id="slide-4">
+      <div class="slide-tag">💻 GUÍA TÉCNICA DE INSTALACIÓN</div>
+      <h2 class="slide-title">¿Qué instalación utiliza y cómo se ejecuta?</h2>
+      <p class="slide-subtitle">Puesta en marcha en solo 4 pasos sin configuraciones complejas.</p>
+
+      <div class="cards-grid" style="grid-template-columns: 1.2fr 0.8fr;">
+        <div>
+          <div class="info-card" style="margin-bottom: 16px;">
+            <div class="card-title">📋 Requisitos Previos</div>
+            <div class="card-text">
+              • <strong>Node.js:</strong> Versión 18 o 20 LTS instalada en el sistema.<br>
+              • <strong>Git:</strong> Para clonar el código fuente.<br>
+              • <strong>Smartphone:</strong> Con la app gratuita <strong>Expo Go</strong> instalada desde Google Play o App Store.
+            </div>
+          </div>
+
+          <div class="terminal-box">
+            <span class="terminal-comment"># 1. Clonar el repositorio oficial</span><br>
+            <span class="terminal-cmd">git clone</span> https://github.com/DaniellCuello/PrestaGO.git<br>
+            <span class="terminal-cmd">cd</span> PrestaGo<br><br>
+
+            <span class="terminal-comment"># 2. Instalar dependencias SDK 58</span><br>
+            <span class="terminal-cmd">npm install</span><br><br>
+
+            <span class="terminal-comment"># 3. Iniciar el servidor de desarrollo</span><br>
+            <span class="terminal-cmd">npx expo start</span>
+          </div>
+        </div>
+
+        <div class="info-card" style="display: flex; flex-direction: column; justify-content: center; text-align: center;">
+          <div style="font-size: 48px; margin-bottom: 12px;">📱</div>
+          <div class="card-title" style="justify-content: center; font-size: 19px;">Escanear Código QR</div>
+          <div class="card-text" style="margin-top: 8px;">
+            Al ejecutar <code style="color: var(--primary-light);">npx expo start</code>, la terminal genera un código QR.<br><br>
+            Abre <strong>Expo Go</strong> en tu celular, escanea el código y la aplicación se cargará en vivo en tu teléfono con soporte para recarga instantánea (Fast Refresh).
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 5: MÓDULO 1 — CARTERA Y SEMÁFORO DE MORAS -->
+    <section class="slide" id="slide-5">
+      <div class="slide-tag">👥 PESTAÑA 1 · CARTERA</div>
+      <h2 class="slide-title">Cartera Inteligente y Semáforo de Moras</h2>
+      <p class="slide-subtitle">Supervisión en tiempo real del dinero en la calle y la puntualidad de cada deudor.</p>
+
+      <div class="cards-grid">
+        <div class="info-card">
+          <div class="card-title">
+            <span>🟢 Al Día</span>
+            <span class="card-badge-pill" style="background: rgba(16, 185, 129, 0.2); color: #10B981;">Puntual</span>
+          </div>
+          <div class="card-text">Clientes que pagan a tiempo. Su fecha de vencimiento está vigente.</div>
+        </div>
+
+        <div class="info-card">
+          <div class="card-title">
+            <span>🟡 1 Mes de Mora</span>
+            <span class="card-badge-pill" style="background: rgba(245, 158, 11, 0.2); color: #F59E0B;">Alerta</span>
+          </div>
+          <div class="card-text">Tiene 1 cuota vencida. Requiere un recordatorio cordial preventivo.</div>
+        </div>
+
+        <div class="info-card">
+          <div class="card-title">
+            <span>🟠 2 Meses de Mora</span>
+            <span class="card-badge-pill" style="background: rgba(249, 115, 22, 0.2); color: #F97316;">Urgente</span>
+          </div>
+          <div class="card-text">Atraso considerable. Prioridad en la ruta de cobro del día.</div>
+        </div>
+
+        <div class="info-card">
+          <div class="card-title">
+            <span>🔴 3+ Meses de Mora</span>
+            <span class="card-badge-pill" style="background: rgba(239, 68, 68, 0.2); color: #EF4444;">Crítico</span>
+          </div>
+          <div class="card-text">Cliente en riesgo de impago o gestión de cobro jurídica/especial.</div>
+        </div>
+
+        <div class="info-card">
+          <div class="card-title">
+            <span>🟣 Paz y Salvo</span>
+            <span class="card-badge-pill" style="background: rgba(139, 92, 246, 0.2); color: #8B5CF6;">Saldo $0</span>
+          </div>
+          <div class="card-text">Crédito liquidado al 100%. Habilita botón de Renovación Inmediata.</div>
+        </div>
+
+        <div class="info-card">
+          <div class="card-title">
+            <span>🔄 Cliente Nuevo vs Migrado</span>
+            <span class="card-badge-pill" style="background: rgba(59, 130, 246, 0.2); color: #3B82F6;">Registro</span>
+          </div>
+          <div class="card-text">Permite ingresar clientes nuevos desde cero o migrar clientes antiguos con sus saldos y cuotas previas del cuaderno.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 6: MÓDULO 2 — FICHA DE CLIENTE Y ACCIONES 1-TOUCH -->
+    <section class="slide" id="slide-6">
+      <div class="slide-tag">⚡ COBRANZA EFICIENTE</div>
+      <h2 class="slide-title">Ficha del Cliente y Acciones de Cobro 1-Touch</h2>
+      <p class="slide-subtitle">Todas las herramientas de cobro concentradas en una sola pantalla interactiva.</p>
+
+      <div class="cards-grid">
+        <div class="info-card">
+          <div class="card-header-icon" style="background: rgba(16, 185, 129, 0.15); color: #10B981;">📞</div>
+          <div class="card-title">Botón Llamar</div>
+          <div class="card-text">Abre directamente el marcador telefónico del celular con el número del deudor sin tener que copiarlo ni memorizarlo.</div>
+        </div>
+
+        <div class="info-card">
+          <div class="card-header-icon" style="background: rgba(37, 211, 102, 0.15); color: #25D366;">💬</div>
+          <div class="card-title">WhatsApp Rápido</div>
+          <div class="card-text">Abre el chat oficial de WhatsApp con un mensaje cordial pre-redactado con el nombre, cuota acordada y saldo restante.</div>
+        </div>
+
+        <div class="info-card">
+          <div class="card-header-icon" style="background: rgba(18, 140, 126, 0.15); color: #128C7E;">📄</div>
+          <div class="card-title">Estado de Cuenta Formal</div>
+          <div class="card-text">Genera un extracto estructurado con capital inicial, modalidad, tasa, cuotas pagadas, días de atraso y saldo pendiente.</div>
+        </div>
+
+        <div class="info-card">
+          <div class="card-header-icon" style="background: rgba(59, 130, 246, 0.15); color: #3B82F6;">✉️</div>
+          <div class="card-title">Recordatorio por Correo (Resend)</div>
+          <div class="card-text">Envía una notificación formal por correo transaccional con plantilla HTML corporativa al email del cliente o del administrador.</div>
+        </div>
+
+        <div class="info-card">
+          <div class="card-header-icon" style="background: rgba(236, 72, 153, 0.15); color: #EC4899;">📍</div>
+          <div class="card-title">Geolocalización GPS</div>
+          <div class="card-text">Visualiza las coordenadas exactas de la casa o negocio del deudor con integración de mapas interactivos.</div>
+        </div>
+
+        <div class="info-card">
+          <div class="card-header-icon" style="background: rgba(245, 158, 11, 0.15); color: #F59E0B;">✏️</div>
+          <div class="card-title">Edición y Auditoría</div>
+          <div class="card-text">Modifica condiciones pactadas, refinancia saldos o elimina registros con respaldo seguro en Firestore.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 7: MÓDULO 3 — LÓGICA FINANCIERA & LA REGLA DE ORO -->
+    <section class="slide" id="slide-7">
+      <div class="slide-tag">🧮 MATEMÁTICA FINANCIERA</div>
+      <h2 class="slide-title">Modalidades de Crédito y la "Regla de Oro"</h2>
+      <p class="slide-subtitle">Precisión matemática rigurosa para microcréditos formales e informales.</p>
+
+      <div class="cards-grid" style="grid-template-columns: 1fr 1fr;">
+        <div class="info-card">
+          <div class="card-title" style="color: var(--primary-light);">1. Modalidad Amortizado</div>
+          <div class="card-text">
+            El cliente paga <strong>Capital + Interés</strong> en cada cuota mensual fija hasta saldar la totalidad.<br><br>
+            • <strong>Plazo Fijo:</strong> 1 a 36 meses.<br>
+            • <strong>Plazo Indefinido (Mes a Mes / 999):</strong> Pago mensual continuo de intereses.
+          </div>
+        </div>
+
+        <div class="info-card">
+          <div class="card-title" style="color: var(--accent-blue);">2. Modalidad Solo Intereses</div>
+          <div class="card-text">
+            En cada mensualidad el deudor abona únicamente el interés acordado. El capital permanece intacto hasta que realice abonos libres o devuelva la totalidad.
+          </div>
+        </div>
+      </div>
+
+      <div class="formula-box">
+        <div class="formula-title">⚡ La Regla de Oro en Abonos a Capital de PrestaGo</div>
+        <div class="formula-text">
+          Cuando un cliente abona dinero directo a capital, <strong>se reduce el saldo de la deuda principal, PERO la cuota mensual acordada NO disminuye</strong>.<br>
+          Esta regla protege el flujo de caja del prestamista y permite que el cliente termine de pagar su crédito en mucho menos tiempo sin desajustar el acuerdo inicial.
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 8: MÓDULO 4 — CALENDARIO & CALCULADORA INTEGRADA -->
+    <section class="slide" id="slide-8">
+      <div class="slide-tag">📅 PESTAÑA 2 · AGENDA Y COTIZADOR</div>
+      <h2 class="slide-title">Calendario Recurrente & Calculadora Rápida</h2>
+      <p class="slide-subtitle">Planifica la ruta diaria de recaudos y cotiza préstamos al instante.</p>
+
+      <div class="cards-grid">
+        <div class="info-card">
+          <div class="card-title">🔄 Recurrencia Automática Mes a Mes</div>
+          <div class="card-text">
+            Si desembolsas un crédito un día 15, la app ubica a ese cliente automáticamente el día 15 de cada mes mientras mantenga saldo activo. Al llegar a Paz y Salvo, se remueve de la agenda.
+          </div>
+        </div>
+
+        <div class="info-card">
+          <div class="card-title">🔴 Días con Marcadores de Color</div>
+          <div class="card-text">
+            Cada día del mes con cobros programados muestra una bolita de color. Al seleccionarlo, se despliega el total en pesos a recaudar y la lista de deudores.
+          </div>
+        </div>
+
+        <div class="info-card">
+          <div class="card-title">🧮 Calculadora Rápida Integrada</div>
+          <div class="card-text">
+            Ubicada justo debajo del calendario: permite ingresar <strong>Monto, Tasa % y Plazo</strong> para calcular en vivo la cuota mensual fija y la ganancia neta antes de prestar.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 9: MÓDULO 5 — ASISTENTE IA CON CONSULTAS POR VOZ -->
+    <section class="slide" id="slide-9">
+      <div class="slide-tag">🤖 PESTAÑA 3 · INTELIGENCIA ARTIFICIAL</div>
+      <h2 class="slide-title">Asistente Financiero IA con Consultas por Voz</h2>
+      <p class="slide-subtitle">Un analista financiero y asistente de cobranza en tu bolsillo impulsado por IA.</p>
+
+      <div class="cards-grid">
+        <div class="info-card">
+          <div class="card-title">🎙️ Dictado por Voz (expo-audio)</div>
+          <div class="card-text">
+            Pulsa el botón de micrófono y habla con naturalidad: <em>"¿A quién le cobro hoy?"</em>, <em>"¿Cuál es mi cliente más moroso?"</em> o <em>"Dame un balance de mi cartera"</em>.
+          </div>
+        </div>
+
+        <div class="info-card">
+          <div class="card-title">📊 Diagnóstico en Tiempo Real</div>
+          <div class="card-text">
+            La IA no inventa datos genéricos: lee la base de datos real de Firestore y evalúa días de mora, capital amortizado y cuotas pendientes de cada cliente.
+          </div>
+        </div>
+
+        <div class="info-card">
+          <div class="card-title">💬 Redacción Automática para WhatsApp</div>
+          <div class="card-text">
+            Genera textos de cobro adaptados a la situación del deudor (preventivo, cordial o urgente) con botón de <strong>Compartir en WhatsApp</strong> en un solo toque.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 10: MÓDULO 6 — ANÁLISIS, PERFIL & CONCLUSIÓN -->
+    <section class="slide" id="slide-10">
+      <div class="slide-tag">📊 PESTAÑAS 4 & 5 · CONTROL TOTAL</div>
+      <h2 class="slide-title">Tablero de Análisis, Perfil y Tutorial Integrado</h2>
+      <p class="slide-subtitle">Todas las métricas de rentabilidad claras y control total de tu cuenta.</p>
+
+      <div class="cards-grid">
+        <div class="info-card">
+          <div class="card-title" style="color: var(--primary-light);">De dónde salen los Números</div>
+          <div class="card-text">
+            • <strong>Capital en la Calle:</strong> Saldo neto prestado pendiente por recuperar.<br>
+            • <strong>Dinero Recuperado:</strong> Suma de todos los pagos históricos recibidos.<br>
+            • <strong>Ganancia de Intereses:</strong> Tu utilidad limpia cobrada.<br>
+            • <strong>Salud de Cartera:</strong> % de dinero al día vs % en riesgo de mora.
+          </div>
+        </div>
+
+        <div class="info-card">
+          <div class="card-title" style="color: var(--accent-purple);">Perfil del Administrador</div>
+          <div class="card-text">
+            • <strong>Foto de Perfil:</strong> Captura con cámara o selección de galería.<br>
+            • <strong>Datos del Negocio:</strong> Personaliza el nombre comercial en extractos.<br>
+            • <strong>Modo Oscuro / Claro:</strong> Interfaz adaptable con 1 toque.<br>
+            • <strong>Servicio Resend:</strong> Envío de reportes diarios matutinos.
+          </div>
+        </div>
+
+        <div class="info-card">
+          <div class="card-title" style="color: var(--accent-blue);">🎓 Tutorial Onboarding Guiado</div>
+          <div class="card-text">
+            Tutorial interactivo en 5 apartados con señas paso a paso para enseñar a cualquier usuario nuevo a dominar la aplicación desde su primer registro.
+          </div>
+        </div>
+      </div>
+
+      <div class="formula-box" style="margin-top: 24px; text-align: center; background: rgba(26, 169, 101, 0.15);">
+        <div style="font-size: 16px; font-weight: 800; color: #FFF; margin-bottom: 4px;">🚀 PrestaGo PRO — Listo para Producción</div>
+        <div class="formula-text">Control financiero inteligente, seguro, escalable y diseñado para el éxito de los prestamistas modernos.</div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- BARRA INFERIOR DE ACCESOS DIRECTOS -->
+  <footer class="bottom-bar">
+    <div class="key-hints">
+      <span>Atajos: <span class="key-badge">←</span> Anterior</span>
+      <span><span class="key-badge">→</span> o <span class="key-badge">Espacio</span> Siguiente</span>
+      <span><span class="key-badge">F</span> Pantalla Completa</span>
+    </div>
+    <div>
+      PrestaGo Mobile App • 2026
+    </div>
+  </footer>
+
+  <script>
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const totalSlides = slides.length;
+    const slideIndicator = document.getElementById('slideIndicator');
+    const progressBar = document.getElementById('progressBar');
+
+    function updateDeck() {
+      slides.forEach((s, idx) => {
+        s.classList.toggle('active', idx === currentSlide);
+      });
+
+      const currentNum = (currentSlide + 1).toString().padStart(2, '0');
+      const totalNum = totalSlides.toString().padStart(2, '0');
+      slideIndicator.innerText = `${currentNum} / ${totalNum}`;
+
+      const progressPercent = ((currentSlide + 1) / totalSlides) * 100;
+      progressBar.style.width = `${progressPercent}%`;
+    }
+
+    function nextSlide() {
+      if (currentSlide < totalSlides - 1) {
+        currentSlide++;
+        updateDeck();
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlide > 0) {
+        currentSlide--;
+        updateDeck();
+      }
+    }
+
+    function toggleFullScreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+      }
+    }
+
+    // NAVEGACIÓN POR TECLADO
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Enter') {
+        nextSlide();
+      } else if (e.key === 'ArrowLeft' || e.key === 'Backspace') {
+        prevSlide();
+      } else if (e.key === 'f' || e.key === 'F') {
+        toggleFullScreen();
+      }
+    });
+
+    // INICIALIZAR
+    updateDeck();
+  </script>
+</body>
+</html>

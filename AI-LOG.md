@@ -212,6 +212,24 @@
   - `npx tsc --noEmit`: 0 errores de tipado.
   - `npx eslint`: 0 errores de linter.
 
+### [Hito 12] — Creación de la Presentación Oficial Interactiva HTML (`presentation.html`)
+- **Objetivo:** Generar una presentación web interactiva, moderna y visual (Pitch Deck / Showcase) con navegación por diapositivas, textos ejecutivos concisos y diseño vanguardista para exponer PrestaGo.
+- **Estructura y Módulos de la Presentación:**
+  - **Slide 1:** Portada ejecutiva con logo oficial de PrestaGo en degradado esmeralda y tags tecnológicos.
+  - **Slide 2:** Propósito de Negocio (¿Para qué existe y cuándo se usa?: solución a los cuadernos físicos y cobros desorganizados).
+  - **Slide 3:** Stack Tecnológico y Arquitectura (React Native 0.88, Expo SDK 58, Expo Router, TypeScript 6.0, Firebase Cloud Firestore y Resend).
+  - **Slide 4:** Instalación y Puesta en Marcha (Comandos de terminal paso a paso y escaneo de código QR en Expo Go).
+  - **Slide 5:** Cartera Inteligente y Semáforo de Moras (Verde, Amarillo, Naranja, Rojo, Púrpura, cliente nuevo vs migrado).
+  - **Slide 6:** Ficha del Cliente y Cobros 1-Touch (Llamada directa, WhatsApp automático, extracto formal y correo con Resend).
+  - **Slide 7:** Matemática Financiera y la Regla de Oro (Amortizado vs Solo Intereses, cuota fija y reducción de capital).
+  - **Slide 8:** Calendario Recurrente & Calculadora Rápida (Día del préstamo mes a mes y simulador de cuotas).
+  - **Slide 9:** Asistente Financiero IA con Consultas por Voz (Grabación con `expo-audio`, diagnósticos y redacción de mensajes).
+  - **Slide 10:** Tablero de Análisis, Perfil y Conclusión (Origen de cada métrica financiera, seguridad y tutorial de inducción).
+- **Características Técnicas del Deck:**
+  - Control por teclado (`←`, `→`, `Espacio`, `F` para pantalla completa).
+  - Barra de progreso superior continua y contador dinámico de diapositivas (`01 / 10`).
+  - Tarjetas con glassmorphism, sombras luminosas y diseño 100% responsivo para computadores, proyectores y móviles.
+
 ---
 
 ## 📐 Resumen del Modelo de Datos Firestore
