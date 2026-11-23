@@ -19,20 +19,25 @@ import {
   MessageCircle,
   Mail,
   Plus,
-  Search,
   Moon,
   Mic,
   Calendar,
   TrendingUp,
   User,
   BookUser,
-  Navigation,
   DollarSign,
   CheckCircle2,
   AlertTriangle,
   Lightbulb,
   Layers,
-  Send,
+  Calculator,
+  PieChart,
+  Bot,
+  Camera,
+  Edit3,
+  LogOut,
+  Bell,
+  Clock,
 } from 'lucide-react-native';
 import { BrandColors, Colors, BorderRadius, Shadows } from '@/constants/theme';
 
@@ -44,271 +49,301 @@ export interface AppTutorialModalProps {
 
 interface StepItem {
   id: number;
+  tabName: string;
+  tabIcon: any;
   title: string;
   subtitle: string;
-  icon: any;
-  iconBg: string;
-  iconColor: string;
+  heroIcon: any;
   gradientColors: [string, string];
+  badgeTag: string;
   sections: {
-    badge: string;
+    pointer: string; // "👉 Seña 1", "👉 Paso 1", etc.
     badgeColor: string;
     icon: any;
     name: string;
     description: string;
   }[];
+  formulaOrRule?: {
+    title: string;
+    description: string;
+  };
   tip: string;
 }
 
-const TUTORIAL_STEPS: StepItem[] = [
+const TUTORIAL_TABS: StepItem[] = [
+  // 1. APARTADO: CLIENTES
   {
     id: 1,
-    title: 'Pantalla de Cartera y Barra de Control',
-    subtitle: 'El centro de mando para monitorear tu dinero en la calle en tiempo real.',
-    icon: Layers,
-    iconBg: '#ECFDF5',
-    iconColor: '#1AA965',
-    gradientColors: ['#1AA965', '#0E7A46'],
+    tabName: 'Clientes',
+    tabIcon: UsersIcon,
+    title: 'Apartado 1: Cartera y Clientes',
+    subtitle: 'Aprende a registrar clientes nuevos y antiguos, entender el semáforo y cobrar.',
+    heroIcon: UsersIcon,
+    gradientColors: ['#1AA965', '#0D6839'],
+    badgeTag: 'PESTAÑA 1 DE 5',
     sections: [
       {
-        badge: 'BARRA SUPERIOR',
+        pointer: '👉 Seña 1',
         badgeColor: '#10B981',
-        icon: DollarSign,
-        name: 'Métricas de Capital & Cartera Activa',
-        description: 'Muestra en vivo la suma total de capital prestado en la calle y la cantidad de clientes activos.',
-      },
-      {
-        badge: 'TEMA VISUAL',
-        badgeColor: '#8B5CF6',
-        icon: Moon,
-        name: 'Alternador Modo Oscuro / Claro',
-        description: 'El icono de luna/sol en la esquina superior derecha te permite cambiar la interfaz a modo noche para descanso visual.',
-      },
-      {
-        badge: 'BÚSQUEDA RÁPIDA',
-        badgeColor: '#3B82F6',
-        icon: Search,
-        name: 'Buscador Predictivo',
-        description: 'Escribe el nombre del cliente, número de cédula o ciudad para encontrar cualquier crédito al instante.',
-      },
-      {
-        badge: 'NUEVO CRÉDITO',
-        badgeColor: '#059669',
         icon: Plus,
-        name: 'Botón Flotante "+" (Nuevo Crédito)',
-        description: 'El botón verde flotante abajo a la derecha abre el formulario inmediato para desembolsar un nuevo préstamo.',
+        name: '¿Cómo registrar un Cliente NUEVO?',
+        description: 'Toca el botón verde flotante "+" (Nuevo Crédito) abajo a la derecha. Escribe su nombre, documento, celular, el monto que le vas a prestar, la tasa de interés y el plazo en meses. ¡La app calcula su cuota mensual de inmediato!',
+      },
+      {
+        pointer: '👉 Seña 2',
+        badgeColor: '#8B5CF6',
+        icon: Layers,
+        name: '¿Cómo registrar un Cliente ANTIGUO o MIGRADO?',
+        description: 'Si traes un cliente que ya te venía pagando en cuaderno o en otra app, dentro del formulario activa el interruptor "¿Es un préstamo anterior/migrado?". La app te abrirá casillas para poner cuánto capital aún te debe, cuánto interés le falta y cuántas cuotas ya te pagó.',
+      },
+      {
+        pointer: '👉 Seña 3',
+        badgeColor: '#F59E0B',
+        icon: AlertTriangle,
+        name: 'El Semáforo de Colores en la Lista',
+        description: 'En cada cliente verás una bolita de color: 🟢 Verde si está Al Día con su pago, 🟡 Amarillo si debe 1 mes, 🟠 Naranja si debe 2 meses, 🔴 Rojo si tiene 3+ meses de mora crítica, y 🟣 Púrpura si ya quedó a Paz y Salvo con saldo $0.',
+      },
+      {
+        pointer: '👉 Seña 4',
+        badgeColor: '#2563EB',
+        icon: Phone,
+        name: 'Ficha del Cliente y Acciones de Cobro',
+        description: 'Toca sobre cualquier cliente para abrir su ficha completa. Verás el botón verde "Llamar" para marcarle directo, el botón "WhatsApp" con mensaje de cobro pre-redactado, "Enviar Estado de Cuenta" con desglose formal y "Enviar Recordatorio por Correo".',
+      },
+      {
+        pointer: '👉 Seña 5',
+        badgeColor: '#EC4899',
+        icon: BookUser,
+        name: 'Importar Contactos y Ubicación GPS',
+        description: 'Al registrar o editar, toca el icono de libreta junto al teléfono para autocompletar el contacto desde tu agenda, o toca "Abrir Mapa GPS" para marcar con una chincheta la casa o negocio del cliente.',
       },
     ],
-    tip: 'Puedes tocar la tarjeta de cualquier cliente en la lista para abrir su ficha completa con el historial y simulador de cobros.',
+    formulaOrRule: {
+      title: '⚡ Regla de Oro en Abonos a Capital',
+      description: 'Cuando un cliente te hace un Abono a Capital, se le descuenta directamente a la deuda, PERO su cuota mensual acordada NO disminuye. Permanece fija para que termine de pagar su crédito mucho más rápido.',
+    },
+    tip: 'Puedes usar la barra de búsqueda arriba para buscar a cualquier cliente escribiendo su nombre, cédula o municipio.',
   },
+
+  // 2. APARTADO: CALENDARIO & CALCULADORA
   {
     id: 2,
-    title: 'Semáforo de Moras y Estados de Cobro',
-    subtitle: 'Identifica la puntualidad de cada cliente mediante colores universales.',
-    icon: AlertTriangle,
-    iconBg: '#FEF3C7',
-    iconColor: '#D97706',
-    gradientColors: ['#F59E0B', '#D97706'],
+    tabName: 'Calendario',
+    tabIcon: Calendar,
+    title: 'Apartado 2: Calendario y Calculadora',
+    subtitle: 'Monitorea las fechas de cobro mes a mes y usa la calculadora integrada.',
+    heroIcon: Calendar,
+    gradientColors: ['#3B82F6', '#1D4ED8'],
+    badgeTag: 'PESTAÑA 2 DE 5',
     sections: [
       {
-        badge: 'VERDE',
+        pointer: '👉 Seña 1',
+        badgeColor: '#3B82F6',
+        icon: Calendar,
+        name: 'El Día del Préstamo se repite cada Mes',
+        description: 'Si le prestas dinero a alguien un día 15, esa persona aparecerá automáticamente agendada el día 15 de cada mes mientras mantenga saldo pendiente. ¡Nunca olvidarás a quién cobrarle!',
+      },
+      {
+        pointer: '👉 Seña 2',
         badgeColor: '#10B981',
-        icon: CheckCircle2,
-        name: 'Al Día (Verde)',
-        description: 'El cliente no tiene cuotas vencidas y su fecha de pago está vigente o dentro del plazo acordado.',
+        icon: Clock,
+        name: 'Puntos de Colores en los Días del Calendario',
+        description: 'Cada número del calendario que tenga una bolita de color indica que hay un cobro ese día. Toca cualquier día con bolitas para ver abajo la lista de personas que deben pagar en esa fecha y el dinero total que debes recaudar.',
       },
       {
-        badge: 'AMARILLO',
+        pointer: '👉 Seña 3',
         badgeColor: '#F59E0B',
-        icon: AlertTriangle,
-        name: '1 Mes de Mora (Amarillo)',
-        description: 'El cliente tiene una cuota vencida. Requiere un recordatorio preventivo cordial.',
+        icon: CheckCircle2,
+        name: 'Botón "Registrar Cobro" en el Día',
+        description: 'Junto a cada cliente que vence en el día verás el botón verde "Registrar Cobro". Tócalo para registrar el abono del día sin salirte de la agenda.',
       },
       {
-        badge: 'NARANJA',
-        badgeColor: '#F97316',
-        icon: AlertTriangle,
-        name: '2 Meses de Mora (Naranja)',
-        description: 'Atraso considerable. Es momento de contactarlo por llamada o acordar un plan de abono.',
-      },
-      {
-        badge: 'ROJO',
-        badgeColor: '#EF4444',
-        icon: AlertTriangle,
-        name: '3+ Meses de Mora (Rojo)',
-        description: 'Mora crítica. Cliente en alto riesgo financiero o gestión de cobro jurídica/especial.',
-      },
-      {
-        badge: 'PÚRPURA',
+        pointer: '👉 Seña 4',
         badgeColor: '#8B5CF6',
-        icon: Sparkles,
-        name: 'Paz y Salvo (Púrpura)',
-        description: 'Saldo $0. El cliente liquidó completamente su deuda y califica para una Renovación Inmediata con un solo toque.',
+        icon: Calculator,
+        name: '¿Dónde está la Calculadora Rápida?',
+        description: 'Desliza hacia abajo en esta misma pantalla de Calendario: justo debajo de la lista de cobros encontrarás la "Calculadora Rápida de Crédito" integrada.',
+      },
+      {
+        pointer: '👉 Seña 5',
+        badgeColor: '#10B981',
+        icon: DollarSign,
+        name: '¿Cómo usar la Calculadora con señas?',
+        description: '1) Ingresa el Monto en la primera casilla (ej: $1.000.000). 2) Pon la Tasa de Interés en la segunda (ej: 10%). 3) Elige los Meses de Plazo. ¡Al instante verás la cuota mensual exacta y cuánto ganarás en total de intereses antes de prestar!',
       },
     ],
-    tip: 'Usa las pestañas de filtro arriba de la lista ("Al Día", "1 Mes", "2 Meses", "Paz y Salvo") para enfocar tu ruta de cobranza.',
+    tip: 'Si un cliente ya pagó la totalidad de su deuda (Paz y Salvo), desaparece automáticamente del calendario para no saturar tu agenda.',
   },
+
+  // 3. APARTADO: ANÁLISIS
   {
     id: 3,
-    title: 'Ficha del Cliente y Acciones de Cobro',
-    subtitle: 'Comunícate con el deudor en un toque y envía estados de cuenta oficiales.',
-    icon: Phone,
-    iconBg: '#DBEAFE',
-    iconColor: '#2563EB',
-    gradientColors: ['#2563EB', '#1D4ED8'],
+    tabName: 'Análisis',
+    tabIcon: TrendingUp,
+    title: 'Apartado 3: Análisis y De Dónde Salen los Números',
+    subtitle: 'Entiende con total claridad cada cifra, porcentaje y métrica de tu negocio.',
+    heroIcon: TrendingUp,
+    gradientColors: ['#10B981', '#065F46'],
+    badgeTag: 'PESTAÑA 3 DE 5',
     sections: [
       {
-        badge: 'LLAMADA',
+        pointer: '👉 Número 1',
         badgeColor: '#10B981',
-        icon: Phone,
-        name: 'Botón "Llamar"',
-        description: 'Abre el marcador de tu teléfono con el número del cliente listo para marcar sin tener que copiarlo.',
+        icon: DollarSign,
+        name: 'Capital en la Calle (Tarjeta Verde)',
+        description: '¿De dónde sale? Es la suma exacta de todo el dinero prestado neto que tus clientes aún tienen en sus manos y todavía no te han devuelto. Representa tu capital activo expuesto.',
       },
       {
-        badge: 'WHATSAPP',
-        badgeColor: '#25D366',
-        icon: MessageCircle,
-        name: 'Botón "WhatsApp"',
-        description: 'Abre el chat de WhatsApp con un mensaje predeterminado que incluye el nombre del cliente, cuota y saldo.',
-      },
-      {
-        badge: 'ESTADO FORMAL',
-        badgeColor: '#128C7E',
-        icon: Send,
-        name: 'Botón "Enviar Estado de Cuenta por WhatsApp"',
-        description: 'Genera una carta formal con desglose completo: capital pendiente, interés, cuotas pagadas y estado de mora.',
-      },
-      {
-        badge: 'CORREO RESEND',
+        pointer: '👉 Número 2',
         badgeColor: '#3B82F6',
-        icon: Mail,
-        name: 'Botón "Enviar Recordatorio por Correo"',
-        description: 'Emite un correo electrónico transaccional formal con diseño corporativo al email del cliente o a tu correo.',
+        icon: TrendingUp,
+        name: 'Dinero Recuperado (Tarjeta Azul)',
+        description: '¿De dónde sale? Es la suma total acumulada de todos los pagos y abonos que tus clientes han realizado en la historia de la app (abonos a capital + cobros de cuotas ya recibidas).',
+      },
+      {
+        pointer: '👉 Número 3',
+        badgeColor: '#F59E0B',
+        icon: DollarSign,
+        name: 'Ganancia de Intereses (Tarjeta Amarilla)',
+        description: '¿De dónde sale? Es tu ganancia neta o utilidad real. Muestra exclusivamente el dinero que has recibido por concepto de intereses cobrados a tus deudores.',
+      },
+      {
+        pointer: '👉 Número 4',
+        badgeColor: '#8B5CF6',
+        icon: PieChart,
+        name: 'Semáforo de Salud de Cartera & Efectividad',
+        description: 'La barra de colores te muestra qué porcentaje de tu dinero está seguro y pagando a tiempo (Verde) contra qué porcentaje está atrasado en mora (Amarillo, Naranja o Rojo).',
+      },
+      {
+        pointer: '👉 Número 5',
+        badgeColor: '#EC4899',
+        icon: Layers,
+        name: 'Gráfico de Proyección Mensual',
+        description: 'Curva visual que te muestra en qué meses recuperarás la totalidad de tu cartera según los plazos pactados con cada deudor.',
       },
     ],
-    tip: 'Arriba a la derecha de la ficha tienes el botón del Lápiz (Editar cliente) y la Caneca Roja (Eliminar cliente).',
+    tip: 'Todas las métricas se actualizan de forma automática e inmediata cada vez que registras un nuevo préstamo o aplicas un abono.',
   },
+
+  // 4. APARTADO: ASISTENTE IA (EXPLICADO COMO A UN BEBÉ)
   {
     id: 4,
-    title: 'Simulador de Abonos y la "Regla de Oro"',
-    subtitle: 'Aplica pagos parciales con cálculo automático de saldos y cuotas.',
-    icon: DollarSign,
-    iconBg: '#DCFCE7',
-    iconColor: '#16A34A',
-    gradientColors: ['#10B981', '#059669'],
+    tabName: 'Asistente IA',
+    tabIcon: Bot,
+    title: 'Apartado 4: Asistente IA Paso a Paso',
+    subtitle: 'Explicado súper fácil, con señas claras para que cualquier persona lo domine.',
+    heroIcon: Bot,
+    gradientColors: ['#EF4444', '#991B1B'],
+    badgeTag: 'PESTAÑA 4 DE 5',
     sections: [
       {
-        badge: 'TIPO CUOTA',
-        badgeColor: '#10B981',
-        icon: DollarSign,
-        name: 'Pago de Cuota',
-        description: 'Registra el valor acordado mensual. Disminuye el interés y el capital correspondiente y avanza el contador de cuotas.',
+        pointer: '👉 Paso 1',
+        badgeColor: '#EF4444',
+        icon: Bot,
+        name: 'Toca el icono del Robot abajo (Asistente)',
+        description: 'En la barra inferior de la app, toca la cuarta pestaña con la carita de robot. Entrarás al chat inteligente de tu negocio.',
       },
       {
-        badge: 'REGLA DE ORO',
-        badgeColor: '#047857',
-        icon: Lightbulb,
-        name: 'Abono a Capital (Regla de Oro)',
-        description: 'Reduce directamente el capital principal. IMPORTANTE: La cuota mensual acordada NO se reduce; se mantiene fija para liquidar antes la deuda.',
-      },
-      {
-        badge: 'TIPO INTERÉS',
-        badgeColor: '#F59E0B',
-        icon: DollarSign,
-        name: 'Abono a Intereses',
-        description: 'Permite al cliente ponerse al día pagando solo el interés del periodo si no dispone del capital.',
-      },
-      {
-        badge: 'PAGO TOTAL',
-        badgeColor: '#8B5CF6',
+        pointer: '👉 Paso 2',
+        badgeColor: '#3B82F6',
         icon: Sparkles,
-        name: 'Pago Total',
-        description: 'Liquida la deuda total pendiente de un solo pago y pasa al cliente automáticamente a estado Paz y Salvo.',
+        name: 'Toca las Burbujas Rápidas (Si no quieres escribir)',
+        description: 'Arriba del chat verás burbujitas de texto. Con solo tocar una con tu dedo (ejemplo: "¿Quiénes tienen que pagar hoy?" o "¿Cuál es mi cliente más moroso?"), la IA empezará a responderte sin que tengas que teclear nada.',
+      },
+      {
+        pointer: '👉 Paso 3',
+        badgeColor: '#10B981',
+        icon: Mic,
+        name: 'Habla por el Micrófono con tu propia voz',
+        description: 'Mira abajo a la derecha: verás un botón con un Micrófono verde. Tócalo una vez, la barra se pondrá en modo grabación. Habla claro a tu celular (ejemplo: "Dime cuánto dinero tengo en la calle") y presiona el botón Enviar.',
+      },
+      {
+        pointer: '👉 Paso 4',
+        badgeColor: '#F59E0B',
+        icon: Lightbulb,
+        name: 'La IA lee tus datos y te da la respuesta exacta',
+        description: 'La IA no inventa nada: revisa tus clientes reales en vivo y te dice nombres con apellidos, teléfonos, cuántos días de atraso llevan y cuánto deben abonar hoy.',
+      },
+      {
+        pointer: '👉 Paso 5',
+        badgeColor: '#25D366',
+        icon: MessageCircle,
+        name: 'Mensajes listos para WhatsApp con un solo toque',
+        description: 'Cuando la IA analiza a un cliente, te redacta un mensaje formal de cobro y te pone un botón verde "Compartir en WhatsApp". ¡Lo tocas y se abre WhatsApp con el mensaje listo para mandárselo al deudor!',
       },
     ],
-    tip: 'Antes de guardar, el simulador te muestra en tiempo real cómo quedará el capital, el interés y el saldo total proyectado.',
+    tip: 'Puedes escuchar tus propias notas de voz dictadas tocando el botón de reproducir (Play) que queda guardado en la burbuja del chat.',
   },
+
+  // 5. APARTADO: PERFIL Y CONFIGURACIÓN
   {
     id: 5,
-    title: 'Registro de Nuevos Préstamos en Segundos',
-    subtitle: 'Modalidades financieras flexibles adaptadas al mercado de microcréditos.',
-    icon: Plus,
-    iconBg: '#F3E8FF',
-    iconColor: '#7C3AED',
-    gradientColors: ['#8B5CF6', '#6D28D9'],
+    tabName: 'Perfil',
+    tabIcon: User,
+    title: 'Apartado 5: Perfil y Configuración',
+    subtitle: 'Conoce todo lo que aparece en tu perfil y cómo modificarlo con total libertad.',
+    heroIcon: User,
+    gradientColors: ['#8B5CF6', '#5B21B6'],
+    badgeTag: 'PESTAÑA 5 DE 5',
     sections: [
       {
-        badge: 'CONTACTOS',
-        badgeColor: '#6366F1',
-        icon: BookUser,
-        name: 'Importar desde la Agenda de Contactos',
-        description: 'Toca el icono de contactos junto al celular para importar automáticamente el nombre y teléfono de tu agenda.',
-      },
-      {
-        badge: 'MAPA GPS',
-        badgeColor: '#EC4899',
-        icon: Navigation,
-        name: 'Ubicación y Mapa GPS',
-        description: 'Buscador de municipios de Colombia y mapa interactivo para colocar un pin exacto en la dirección del deudor.',
-      },
-      {
-        badge: 'MODALIDAD',
-        badgeColor: '#10B981',
-        icon: Layers,
-        name: 'Amortizado vs Solo Intereses',
-        description: 'Elige si el cliente paga capital e interés en cada cuota, o si paga solo el interés mensual y devuelve el capital al final.',
-      },
-      {
-        badge: 'PLAZOS',
-        badgeColor: '#F59E0B',
-        icon: Calendar,
-        name: 'Plazo Fijo vs Mes a Mes (999)',
-        description: 'Define un plazo cerrado (ej. 3, 6, 12 meses) o plazo indefinido "Mes a Mes" para créditos continuos.',
-      },
-    ],
-    tip: 'Si traes clientes antiguos de otro sistema o cuaderno, puedes activar el interruptor "Préstamo Migrado" para registrar saldos anteriores.',
-  },
-  {
-    id: 6,
-    title: 'Asistente IA con Voz, Calendario y Analítica',
-    subtitle: 'Herramientas inteligentes para maximizar el cobro y la rentabilidad.',
-    icon: Sparkles,
-    iconBg: '#FEF2F2',
-    iconColor: '#DC2626',
-    gradientColors: ['#EF4444', '#B91C1C'],
-    sections: [
-      {
-        badge: 'AUDIO IA',
-        badgeColor: '#EF4444',
-        icon: Mic,
-        name: 'Asistente IA con Dictado por Voz',
-        description: 'En la pestaña Asistente, mantén presionado o pulsa el botón del micrófono para preguntarle a la IA qué clientes vencen hoy o quién está en mora.',
-      },
-      {
-        badge: 'CALENDARIO',
-        badgeColor: '#3B82F6',
-        icon: Calendar,
-        name: 'Calendario de Vencimientos',
-        description: 'Visualiza en un calendario mensual qué días exactos debes salir a cobrar y cuánto dinero recaudarás.',
-      },
-      {
-        badge: 'ANALÍTICA',
-        badgeColor: '#10B981',
-        icon: TrendingUp,
-        name: 'Analítica Financiera & Calculadora',
-        description: 'Revisa tu ganancia neta en intereses, efectividad de recaudo y usa la Calculadora Rápida para cotizar préstamos en segundos.',
-      },
-      {
-        badge: 'PERFIL & RESEND',
+        pointer: '👉 Seña 1',
         badgeColor: '#8B5CF6',
-        icon: User,
-        name: 'Perfil de Administrador',
-        description: 'Configura tu nombre de negocio, foto de perfil, servicio de correos Resend y vuelve a abrir este tutorial cuando lo desees.',
+        icon: Camera,
+        name: 'Tu Foto de Perfil (Avatar)',
+        description: 'En el círculo con tus iniciales o foto, toca el botoncito de la cámara. Se abrirá una ventana para que te tomes una foto en vivo con la cámara de tu celular o elijas una foto guardada en tu galería.',
+      },
+      {
+        pointer: '👉 Seña 2',
+        badgeColor: '#10B981',
+        icon: Edit3,
+        name: 'Botón "Editar Datos de Administrador"',
+        description: 'Toca este botón para cambiar tu nombre, tu número de celular, tu cédula y el Nombre de tu Negocio de Préstamos (este nombre es el que verán tus clientes en los extractos y correos).',
+      },
+      {
+        pointer: '👉 Seña 3',
+        badgeColor: '#3B82F6',
+        icon: Moon,
+        name: 'Modo Oscuro / Modo Claro',
+        description: 'El interruptor de Modo Oscuro te permite cambiar los colores de toda la aplicación a tonos oscuros elegantes o tonos claros según tu gusto.',
+      },
+      {
+        pointer: '👉 Seña 4',
+        badgeColor: '#F59E0B',
+        icon: Bell,
+        name: 'Notificaciones de Cobro Diarias',
+        description: 'Enciende o apaga las alertas recordatorias de los cobros matutinos para estar siempre al día con los vencimientos.',
+      },
+      {
+        pointer: '👉 Seña 5',
+        badgeColor: '#2563EB',
+        icon: Mail,
+        name: 'Servicio de Correos Electrónicos (Resend)',
+        description: 'Aquí puedes configurar tu clave gratuita de Resend, enviar un correo de prueba a tu bandeja de entrada o pedir el "Resumen de Cobros de Hoy" en formato ejecutivo.',
+      },
+      {
+        pointer: '👉 Seña 6',
+        badgeColor: '#6366F1',
+        icon: Sparkles,
+        name: 'Botón "Guía y Tutorial de PrestaGo"',
+        description: 'En la sección Ayuda encontrarás este botón. Tócalo cada vez que quieras repasar estas explicaciones y señas de la app.',
+      },
+      {
+        pointer: '👉 Seña 7',
+        badgeColor: '#EF4444',
+        icon: LogOut,
+        name: 'Botón Rojo "Cerrar Sesión"',
+        description: 'Ubicado al final de la pantalla. Cierra tu sesión de forma segura para proteger la información confidencial de tu negocio si prestas el teléfono.',
       },
     ],
-    tip: '¡Ya estás listo para operar tu cartera con total seguridad y control financiero inteligente!',
+    tip: 'Recuerda pulsar "Guardar Cambios" cuando edites tus datos en el modal de administrador para sincronizarlos con la nube.',
   },
 ];
+
+// Helper component for Users icon
+function UsersIcon(props: any) {
+  return <User {...props} />;
+}
 
 export const AppTutorialModal: React.FC<AppTutorialModalProps> = ({
   visible,
@@ -320,9 +355,9 @@ export const AppTutorialModal: React.FC<AppTutorialModalProps> = ({
 
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
 
-  const step = TUTORIAL_STEPS[currentStepIndex];
+  const step = TUTORIAL_TABS[currentStepIndex];
   const isFirstStep = currentStepIndex === 0;
-  const isLastStep = currentStepIndex === TUTORIAL_STEPS.length - 1;
+  const isLastStep = currentStepIndex === TUTORIAL_TABS.length - 1;
 
   const handleNext = () => {
     if (isLastStep) {
@@ -338,8 +373,8 @@ export const AppTutorialModal: React.FC<AppTutorialModalProps> = ({
     }
   };
 
-  const handleSkip = () => {
-    onClose();
+  const handleSelectTab = (index: number) => {
+    setCurrentStepIndex(index);
   };
 
   return (
@@ -357,7 +392,7 @@ export const AppTutorialModal: React.FC<AppTutorialModalProps> = ({
             paddingBottom: insets.bottom,
           },
         ]}>
-        {/* Barra Superior con Progreso y Saltar */}
+        {/* Barra Superior con Logo, Contador y Botón Omitir */}
         <View style={styles.topBar}>
           <View style={styles.topLeft}>
             <Image
@@ -367,16 +402,16 @@ export const AppTutorialModal: React.FC<AppTutorialModalProps> = ({
             />
             <View>
               <Text style={[styles.topAppTitle, { color: theme.text }]}>
-                Presta<Text style={{ color: BrandColors.primary }}>Go</Text> Guía
+                Presta<Text style={{ color: BrandColors.primary }}>Go</Text> · Guía Completa
               </Text>
               <Text style={[styles.stepCounterText, { color: theme.textSecondary }]}>
-                Paso {currentStepIndex + 1} de {TUTORIAL_STEPS.length}
+                Apartado {currentStepIndex + 1} de {TUTORIAL_TABS.length} · {step.tabName}
               </Text>
             </View>
           </View>
 
           <Pressable
-            onPress={handleSkip}
+            onPress={onClose}
             hitSlop={10}
             style={[
               styles.skipBtn,
@@ -389,6 +424,53 @@ export const AppTutorialModal: React.FC<AppTutorialModalProps> = ({
           </Pressable>
         </View>
 
+        {/* Pestañas de Acceso Rápido a los 5 Apartados */}
+        <View style={styles.tabsScrollWrapper}>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.tabsScrollContent}>
+            {TUTORIAL_TABS.map((t, idx) => {
+              const TabIcon = t.tabIcon;
+              const isSelected = idx === currentStepIndex;
+              return (
+                <Pressable
+                  key={t.id}
+                  onPress={() => handleSelectTab(idx)}
+                  style={[
+                    styles.tabPill,
+                    {
+                      backgroundColor: isSelected
+                        ? t.gradientColors[0]
+                        : isDarkMode
+                        ? '#141C2B'
+                        : '#FFFFFF',
+                      borderColor: isSelected
+                        ? t.gradientColors[0]
+                        : theme.border,
+                    },
+                    isSelected && Shadows.sm,
+                  ]}>
+                  <TabIcon
+                    size={14}
+                    color={isSelected ? '#FFFFFF' : theme.textSecondary}
+                  />
+                  <Text
+                    style={[
+                      styles.tabPillText,
+                      {
+                        color: isSelected ? '#FFFFFF' : theme.text,
+                        fontWeight: isSelected ? '800' : '600',
+                      },
+                    ]}>
+                    {t.tabName}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </ScrollView>
+        </View>
+
         {/* Barra de Progreso Continua */}
         <View
           style={[
@@ -399,18 +481,18 @@ export const AppTutorialModal: React.FC<AppTutorialModalProps> = ({
             style={[
               styles.progressFill,
               {
-                width: `${((currentStepIndex + 1) / TUTORIAL_STEPS.length) * 100}%`,
+                width: `${((currentStepIndex + 1) / TUTORIAL_TABS.length) * 100}%`,
                 backgroundColor: step.gradientColors[0],
               },
             ]}
           />
         </View>
 
-        {/* Contenido Desplazable del Paso Actual */}
+        {/* Contenido Desplazable del Apartado Actual */}
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}>
-          {/* Tarjeta Hero del Paso */}
+          {/* Tarjeta Hero del Apartado */}
           <LinearGradient
             colors={step.gradientColors}
             start={{ x: 0, y: 0 }}
@@ -418,12 +500,10 @@ export const AppTutorialModal: React.FC<AppTutorialModalProps> = ({
             style={[styles.heroCard, Shadows.md]}>
             <View style={styles.heroHeaderRow}>
               <View style={[styles.heroIconBox, { backgroundColor: 'rgba(255,255,255,0.2)' }]}>
-                <step.icon size={26} color="#FFFFFF" />
+                <step.heroIcon size={26} color="#FFFFFF" />
               </View>
               <View style={styles.heroBadge}>
-                <Text style={styles.heroBadgeText}>
-                  MÓDULO {step.id} DE {TUTORIAL_STEPS.length}
-                </Text>
+                <Text style={styles.heroBadgeText}>{step.badgeTag}</Text>
               </View>
             </View>
 
@@ -431,10 +511,10 @@ export const AppTutorialModal: React.FC<AppTutorialModalProps> = ({
             <Text style={styles.heroSubtitle}>{step.subtitle}</Text>
           </LinearGradient>
 
-          {/* Listado de Funciones y Botones Explicados */}
+          {/* Listado de Funciones, Señas y Botones Explicados */}
           <View style={styles.sectionsContainer}>
             <Text style={[styles.sectionsHeader, { color: theme.text }]}>
-              Botones y Funciones Clave:
+              Instrucciones y Señas Paso a Paso:
             </Text>
 
             {step.sections.map((sec, idx) => {
@@ -450,6 +530,7 @@ export const AppTutorialModal: React.FC<AppTutorialModalProps> = ({
                     },
                     Shadows.sm,
                   ]}>
+                  {/* Encabezado con Seña destacada */}
                   <View style={styles.sectionItemTop}>
                     <View
                       style={[
@@ -463,14 +544,14 @@ export const AppTutorialModal: React.FC<AppTutorialModalProps> = ({
                         <View
                           style={[
                             styles.sectionBadge,
-                            { backgroundColor: `${sec.badgeColor}20` },
+                            { backgroundColor: `${sec.badgeColor}22` },
                           ]}>
                           <Text
                             style={[
                               styles.sectionBadgeText,
                               { color: sec.badgeColor },
                             ]}>
-                            {sec.badge}
+                            {sec.pointer}
                           </Text>
                         </View>
                       </View>
@@ -480,6 +561,7 @@ export const AppTutorialModal: React.FC<AppTutorialModalProps> = ({
                     </View>
                   </View>
 
+                  {/* Explicación didáctica */}
                   <Text
                     style={[
                       styles.sectionDescription,
@@ -491,6 +573,28 @@ export const AppTutorialModal: React.FC<AppTutorialModalProps> = ({
               );
             })}
           </View>
+
+          {/* Caja Especial de Regla Financiera si aplica */}
+          {step.formulaOrRule && (
+            <View
+              style={[
+                styles.ruleBox,
+                {
+                  backgroundColor: isDarkMode ? '#172722' : '#E8F8F0',
+                  borderColor: BrandColors.primary,
+                },
+              ]}>
+              <View style={styles.ruleHeader}>
+                <Sparkles size={16} color={BrandColors.primary} />
+                <Text style={[styles.ruleTitle, { color: BrandColors.primary }]}>
+                  {step.formulaOrRule.title}
+                </Text>
+              </View>
+              <Text style={[styles.ruleText, { color: theme.text }]}>
+                {step.formulaOrRule.description}
+              </Text>
+            </View>
+          )}
 
           {/* Caja de Consejo Práctico */}
           <View
@@ -504,13 +608,15 @@ export const AppTutorialModal: React.FC<AppTutorialModalProps> = ({
             <View style={styles.tipHeader}>
               <Lightbulb size={16} color={BrandColors.primary} />
               <Text style={[styles.tipTitle, { color: BrandColors.primary }]}>
-                Consejo PrestaGo
+                Consejo Práctico PrestaGo
               </Text>
             </View>
             <Text style={[styles.tipText, { color: theme.text }]}>
               {step.tip}
             </Text>
           </View>
+
+          <View style={{ height: 20 }} />
         </ScrollView>
 
         {/* Barra de Navegación Inferior (Anterior / Siguiente) */}
@@ -544,22 +650,26 @@ export const AppTutorialModal: React.FC<AppTutorialModalProps> = ({
 
             {/* Indicador de Bolitas (Dots) */}
             <View style={styles.dotsRow}>
-              {TUTORIAL_STEPS.map((s, i) => (
-                <View
+              {TUTORIAL_TABS.map((s, i) => (
+                <Pressable
                   key={s.id}
-                  style={[
-                    styles.dot,
-                    {
-                      backgroundColor:
-                        i === currentStepIndex
-                          ? step.gradientColors[0]
-                          : isDarkMode
-                          ? '#1E2638'
-                          : '#CBD5E1',
-                      width: i === currentStepIndex ? 20 : 6,
-                    },
-                  ]}
-                />
+                  onPress={() => handleSelectTab(i)}
+                  hitSlop={8}>
+                  <View
+                    style={[
+                      styles.dot,
+                      {
+                        backgroundColor:
+                          i === currentStepIndex
+                            ? step.gradientColors[0]
+                            : isDarkMode
+                            ? '#1E2638'
+                            : '#CBD5E1',
+                        width: i === currentStepIndex ? 22 : 6,
+                      },
+                    ]}
+                  />
+                </Pressable>
               ))}
             </View>
 
@@ -573,7 +683,7 @@ export const AppTutorialModal: React.FC<AppTutorialModalProps> = ({
                 end={{ x: 1, y: 0 }}
                 style={styles.nextGradient}>
                 <Text style={styles.nextBtnText}>
-                  {isLastStep ? '¡Comenzar!' : 'Siguiente'}
+                  {isLastStep ? '¡Entendido, Comenzar!' : 'Siguiente'}
                 </Text>
                 {isLastStep ? (
                   <CheckCircle2 size={16} color="#FFFFFF" />
@@ -597,8 +707,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 18,
-    paddingVertical: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
   },
   topLeft: {
     flexDirection: 'row',
@@ -630,6 +740,27 @@ const styles = StyleSheet.create({
   skipBtnText: {
     fontSize: 12,
     fontWeight: '600',
+  },
+  tabsScrollWrapper: {
+    paddingVertical: 6,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(150,150,150,0.1)',
+  },
+  tabsScrollContent: {
+    paddingHorizontal: 14,
+    gap: 8,
+  },
+  tabPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: BorderRadius.full,
+    borderWidth: 1,
+  },
+  tabPillText: {
+    fontSize: 12,
   },
   progressTrack: {
     height: 4,
@@ -682,13 +813,13 @@ const styles = StyleSheet.create({
     lineHeight: 26,
   },
   heroSubtitle: {
-    color: 'rgba(255,255,255,0.9)',
+    color: 'rgba(255,255,255,0.92)',
     fontSize: 13,
     marginTop: 6,
     lineHeight: 18,
   },
   sectionsContainer: {
-    marginBottom: 16,
+    marginBottom: 14,
   },
   sectionsHeader: {
     fontSize: 15,
@@ -720,13 +851,13 @@ const styles = StyleSheet.create({
     marginBottom: 3,
   },
   sectionBadge: {
-    paddingHorizontal: 7,
-    paddingVertical: 2,
-    borderRadius: 5,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
   },
   sectionBadgeText: {
-    fontSize: 9,
-    fontWeight: '800',
+    fontSize: 10,
+    fontWeight: '900',
     letterSpacing: 0.5,
   },
   sectionName: {
@@ -738,11 +869,32 @@ const styles = StyleSheet.create({
     lineHeight: 18,
     marginTop: 2,
   },
+  ruleBox: {
+    borderRadius: BorderRadius.xl,
+    borderWidth: 1,
+    padding: 14,
+    marginBottom: 12,
+  },
+  ruleHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 4,
+  },
+  ruleTitle: {
+    fontSize: 13,
+    fontWeight: '800',
+    letterSpacing: -0.2,
+  },
+  ruleText: {
+    fontSize: 12,
+    lineHeight: 18,
+  },
   tipBox: {
     borderRadius: BorderRadius.xl,
     borderWidth: 1,
     padding: 14,
-    marginTop: 6,
+    marginTop: 4,
   },
   tipHeader: {
     flexDirection: 'row',
