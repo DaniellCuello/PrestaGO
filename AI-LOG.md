@@ -167,6 +167,31 @@
   - `npx tsc --noEmit`: 0 errores de compilación.
   - `npx eslint`: 0 errores en todos los componentes modificados.
 
+### [Hito 11] — Tutorial Interactivo de Bienvenida y Guía de Funciones (Onboarding)
+- **Objetivo:** Brindar a todo nuevo administrador una experiencia guiada completa que le enseñe visualmente cada función, botón, semáforo de cobro y la Regla de Oro de PrestaGo de forma pedagógica y accesible.
+- **Componente Modular `AppTutorialModal.tsx` (`src/components/AppTutorialModal.tsx`):**
+  - **Estructura en 6 Módulos Paso a Paso:**
+    1. **Pantalla de Cartera y Barra de Control:** Métricas de capital colocado, cartera activa, modo oscuro/claro, buscador predictivo y botón flotante `+`.
+    2. **Semáforo de Moras y Estados de Cobro:** Código de colores universales (🟢 Al Día, 🟡 1 Mes, 🟠 2 Meses, 🔴 3+ Meses Mora Crítica, 🟣 Paz y Salvo).
+    3. **Ficha del Cliente y Acciones de Cobro:** Botón Llamar, Botón WhatsApp con mensaje automático, Enviar Estado de Cuenta formal por WhatsApp y Enviar Recordatorio por Correo (Resend).
+    4. **Simulador de Abonos y la "Regla de Oro":** Cuota fija, Abono a Interés, Pago Total y la explicación financiera clave de cómo el Abono a Capital reduce la deuda sin disminuir la cuota mensual pactada.
+    5. **Registro de Nuevos Préstamos en Segundos:** Importación de contactos del celular (`BookUser`), mapa GPS interactivo, modalidades (Amortizado vs Solo Interés) y plazos fijos vs Mes a Mes (999).
+    6. **Asistente IA con Voz, Calendario y Analítica:** Consultas dictadas con micrófono (`expo-audio`), vista de vencimientos mensuales, calculadora rápida de intereses y perfil.
+  - **Componentes Visuales:**
+    - Indicador superior continuo de progreso con degradado de color y contador de pasos (`Paso X de 6`).
+    - Tarjeta hero destacada con icono ilustrado y badge de módulo.
+    - Tarjetas de botones y funciones con icono específico, micro-badge temático y explicación clara.
+    - Caja destacada **"💡 Consejo PrestaGo"** en cada paso.
+    - Navegación inferior con botón "Anterior", barra de puntos (dots interactivos) y botón "Siguiente" / "¡Comenzar!".
+    - Botón "Omitir" en la esquina superior para saltar el tutorial si el usuario ya es experto.
+- **Integración y Disparo Automático:**
+  - En `src/app/(tabs)/index.tsx`: Chequeo en `AsyncStorage` (`@prestago_tutorial_completed_v1`). Si es un usuario nuevo, el tutorial se lanza de forma automática e inmediata.
+  - En `src/app/(auth)/register.tsx`: Al crearse exitosamente una nueva cuenta de administrador, se limpia el flag para garantizar que el nuevo usuario reciba el tutorial en su primera sesión.
+  - En `src/app/(tabs)/profile.tsx`: Agregada la sección **"AYUDA Y APRENDIZAJE"** con el botón **"Guía y Tutorial de PrestaGo"** para volver a abrir y repasar el tutorial cuando se desee.
+- **Verificación Técnica:**
+  - `npx tsc --noEmit`: 0 errores.
+  - `npx eslint`: 0 errores.
+
 ---
 
 ## 📐 Resumen del Modelo de Datos Firestore

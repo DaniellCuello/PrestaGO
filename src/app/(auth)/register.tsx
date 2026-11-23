@@ -13,6 +13,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { Image } from 'expo-image';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   ArrowLeft,
   User,
@@ -88,9 +89,14 @@ export default function RegisterScreen() {
 
       if (!result.success) {
         setErrorMessage(result.error || 'No se pudo completar el registro.');
+      } else {
+        // Garantizar que el nuevo usuario reciba el tutorial interactivo
+        try {
+          await AsyncStorage.removeItem('@prestago_tutorial_completed_v1');
+        } catch {}
       }
       // Al registrarse exitosamente, isAuthenticated cambia a true y el RootNavigator redirige a (tabs)
-    } catch (err) {
+    } catch {
       setErrorMessage('Ocurrió un error inesperado al procesar el registro.');
     } finally {
       setLoading(false);

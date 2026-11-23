@@ -36,11 +36,13 @@ import {
   Send,
   Sparkles,
   ExternalLink,
+  BookOpen,
 } from 'lucide-react-native';
 import { usePrestago } from '@/context/PrestagoContext';
 import { BrandColors, Colors, BorderRadius, Shadows, MaxContentWidth } from '@/constants/theme';
 import { HeaderBar } from '@/components/HeaderBar';
 import { AdminModalEdit } from '@/components/AdminModalEdit';
+import { AppTutorialModal } from '@/components/AppTutorialModal';
 import {
   getResendApiKey,
   saveResendApiKey,
@@ -74,6 +76,7 @@ export default function ProfileScreen() {
   const [resendModalVisible, setResendModalVisible] = useState(false);
   const [apiKeyInput, setApiKeyInput] = useState('');
   const [isSendingEmail, setIsSendingEmail] = useState(false);
+  const [tutorialModalVisible, setTutorialModalVisible] = useState(false);
 
   useEffect(() => {
     const cargarPreferenciaNotif = async () => {
@@ -755,6 +758,49 @@ export default function ProfileScreen() {
           </Pressable>
         </View>
 
+        {/* Sección: Ayuda y Tutorial de la Aplicación */}
+        <View style={styles.sectionHeading}>
+          <Text style={[styles.headingText, { color: theme.textSecondary }]}>
+            Ayuda y Aprendizaje
+          </Text>
+        </View>
+
+        <View
+          style={[
+            styles.settingsGroup,
+            {
+              backgroundColor: theme.card,
+              borderColor: theme.border,
+            },
+            Shadows.sm,
+          ]}>
+          <Pressable
+            onPress={() => setTutorialModalVisible(true)}
+            style={({ pressed }) => [
+              styles.prefRow,
+              pressed && { opacity: 0.75 },
+            ]}>
+            <View style={styles.prefRowLeft}>
+              <View
+                style={[
+                  styles.prefIconBox,
+                  { backgroundColor: isDarkMode ? '#1E293B' : '#EEF2FF' },
+                ]}>
+                <BookOpen size={18} color="#6366F1" />
+              </View>
+              <View style={styles.prefTextCol}>
+                <Text style={[styles.prefTitle, { color: theme.text }]}>
+                  Guía y Tutorial de PrestaGo
+                </Text>
+                <Text style={[styles.prefSub, { color: theme.textSecondary }]}>
+                  Repasa las 6 funciones, botones y la regla de oro
+                </Text>
+              </View>
+            </View>
+            <ChevronRight size={18} color={theme.textMuted} />
+          </Pressable>
+        </View>
+
         {/* Botón de Cerrar Sesión */}
         <Pressable
           onPress={handleCerrarSesion}
@@ -1218,6 +1264,13 @@ export default function ProfileScreen() {
           </View>
         </View>
       </Modal>
+
+      {/* Tutorial Interactivo y Guía de Bienvenida */}
+      <AppTutorialModal
+        visible={tutorialModalVisible}
+        onClose={() => setTutorialModalVisible(false)}
+        isDarkMode={isDarkMode}
+      />
     </View>
   );
 }

@@ -14,6 +14,7 @@
 
 - 🟢 **Sincronización en Vivo con Firebase (Cloud Firestore & Auth):** Conexión transparente y compartida con la base de datos de producción existente en Android Studio/Flutter (`prestago-2002`).
 - 🎨 **Identidad Visual y Logo Oficial PrestaGo:** Integración del imagotipo de la moneda dorada y tipografía oficial (`assets/images/PrestaGo.png`) adaptado proporcionalmente en barra superior, pantalla de inicio de sesión, registro y splash.
+- 🎓 **Tutorial Interactivo y Guía de Funciones (Onboarding):** Inducción visual paso a paso en 6 módulos que enseña al usuario nuevo cada función, botón (Llamar, WhatsApp, Correo, GPS, Micrófono), los semáforos de mora y la Regla de Oro en abonos.
 - ✉️ **Servicio de Correos Transaccionales (Resend):** Emisión de recordatorios de cuotas y resúmenes diarios matutinos de cobro mediante plantillas HTML ejecutivas y responsivas, superando las restricciones de dominios de Google con 3.000 correos mensuales gratuitos.
 - 🤖 **Asistente Financiero con Inteligencia Artificial:** Resuelve dudas sobre la cartera, identifica clientes en mora y genera recordatorios de cobro listos para WhatsApp.
 - 🎙️ **Consultas por Voz en el Asistente IA (`expo-audio`):** Grabación nativa de voz con temporizador en tiempo real, reproductor de notas de voz con barra de onda en el chat y diagnósticos financieros automáticos.

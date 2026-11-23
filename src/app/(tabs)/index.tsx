@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   Search,
   Plus,
@@ -20,6 +21,9 @@ import { Colors, BrandColors, BorderRadius, Shadows, MaxContentWidth } from '@/c
 import { HeaderBar } from '@/components/HeaderBar';
 import { ClienteCard } from '@/components/ClienteCard';
 import { ClienteModalDetail } from '@/components/ClienteModalDetail';
+import { AppTutorialModal } from '@/components/AppTutorialModal';
+
+const STORAGE_KEY_TUTORIAL_COMPLETED = '@prestago_tutorial_completed_v1';
 
 export default function ClientesScreen() {
   const {
@@ -39,6 +43,35 @@ export default function ClientesScreen() {
   const [filtroEstado, setFiltroEstado] = useState<string>('todos');
   const [selectedCliente, setSelectedCliente] = useState<Cliente | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const [tutorialVisible, setTutorialVisible] = useState(false);
+
+  // Verificación para mostrar el tutorial a usuarios nuevos
+  useEffect(() => {
+    let isMounted = true;
+    const checkTutorial = async () => {
+      try {
+        const completed = await AsyncStorage.getItem(STORAGE_KEY_TUTORIAL_COMPLETED);
+        if (!completed && isMounted) {
+          setTutorialVisible(true);
+        }
+      } catch (e) {
+        console.warn('Error leyendo estado de tutorial:', e);
+      }
+    };
+    checkTutorial();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const handleCloseTutorial = async () => {
+    setTutorialVisible(false);
+    try {
+      await AsyncStorage.setItem(STORAGE_KEY_TUTORIAL_COMPLETED, 'true');
+    } catch (e) {
+      console.warn('Error guardando estado de tutorial:', e);
+    }
+  };
 
   // Filtrado reactivo en tiempo real
   const clientesFiltrados = useMemo(() => {
@@ -276,6 +309,13 @@ export default function ClientesScreen() {
           setModalVisible(false);
           setSelectedCliente(null);
         }}
+      />
+
+      {/* Tutorial Interactivo y Guía de Bienvenida */}
+      <AppTutorialModal
+        visible={tutorialVisible}
+        onClose={handleCloseTutorial}
+        isDarkMode={isDarkMode}
       />
     </View>
   );
